@@ -5,6 +5,7 @@ import pytest
 import boto3
 from moto import mock_rds
 from sqlalchemy import Table, Column, Integer, String, MetaData, create_engine
+from sqlalchemy.engine import Connection
 
 TEST_REGION = "us-east-2"
 DB_NAME = "populare_db"
@@ -15,6 +16,7 @@ MASTER_USERNAME = "testing"
 MASTER_PASSWORD = "testingtesting"
 PORT = 3306
 MAX_ALLOCATED_STORAGE_GB = 20
+TEST_IN_MEM_DB_URL = "sqlite+pysqlite:///:memory:"
 
 
 @pytest.fixture(name="aws_credentials", scope="session")
@@ -60,13 +62,18 @@ def fixture_mocked_rds(aws_credentials: None) -> dict:
             MonitoringInterval=0,
             MaxAllocatedStorage=MAX_ALLOCATED_STORAGE_GB
         )
-        print(db_instance)
-        # TODO does this need package mysql-connector to work?
-        url = f"mysql+mysqlconnector://{MASTER_USERNAME}:{MASTER_PASSWORD}@{db_instance['DBInstance']['Endpoint']['Address']}:{PORT}/{db_instance['DBInstance']['DBName']}"
-        print(url)
-        engine = create_engine(url)
-        engine.connect()
-        #engine = create_engine("mysql:///college.db")
+        yield db_instance
+
+
+@pytest.fixture(name="local_db")
+def fixture_local_db() -> Connection:
+    """Creates a local SQLite database for testing.
+
+    :return: A connection to the local, in-memory database.
+    """
+    engine = create_engine(TEST_IN_MEM_DB_URL)
+    with engine.connect() as conn:
+        # TODO populate the database
         meta = MetaData()
         students = Table(
             'students', meta,
@@ -75,4 +82,4 @@ def fixture_mocked_rds(aws_credentials: None) -> dict:
             Column('lastname', String),
         )
         meta.create_all(engine)
-        yield db_instance
+        yield conn
