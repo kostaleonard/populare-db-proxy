@@ -2,5 +2,5 @@ pylint
 pytest
 pytest-cov
 boto3
-mysqlclient
 moto
+sqlalchemy
