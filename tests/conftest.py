@@ -5,9 +5,8 @@ from datetime import datetime
 import pytest
 import boto3
 from moto import mock_rds
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import Session
 from populare_db_proxy.db_schema import Post
 from populare_db_proxy.rds import init_db_schema, create_post
 
@@ -69,21 +68,36 @@ def fixture_mocked_rds(aws_credentials: None) -> dict:
         yield db_instance
 
 
-@pytest.fixture(name="local_db")
-def fixture_local_db() -> Engine:
-    """Creates a local SQLite database for testing.
+@pytest.fixture(name="uninitialized_local_db")
+def fixture_uninitialized_local_db() -> Engine:
+    """Creates a schema-less local SQLite database for testing.
 
     :return: A connection to the local, in-memory database.
     """
-    engine = create_engine(TEST_IN_MEM_DB_URL)
-    init_db_schema(engine)
-    post = Post(text="text", author="author", created_at=datetime.now())
-    create_post(engine, post)
-    post = Post(text="text", author="author", created_at=datetime.now())
-    create_post(engine, post)
-    with Session(engine) as session:
-        with session.begin():
-            statement = select(Post)
-            results = session.execute(statement)
-            print(list(results))
-    yield engine
+    yield create_engine(TEST_IN_MEM_DB_URL)
+
+
+@pytest.fixture(name="empty_local_db")
+def fixture_empty_local_db(uninitialized_local_db: Engine) -> Engine:
+    """Creates an empty local SQLite database for testing.
+
+    :return: A connection to the local, in-memory database.
+    """
+    init_db_schema(uninitialized_local_db)
+    yield uninitialized_local_db
+
+
+@pytest.fixture(name="populated_local_db")
+def fixture_populated_local_db(empty_local_db: Engine) -> Engine:
+    """Creates a populated local SQLite database for testing.
+
+    :return: A connection to the local, in-memory database.
+    """
+    for idx in range(5):
+        post = Post(
+            text=f"text{idx}",
+            author=f"author{idx}",
+            created_at=datetime.now()
+        )
+        create_post(empty_local_db, post)
+    yield empty_local_db

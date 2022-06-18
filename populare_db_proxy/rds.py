@@ -21,14 +21,9 @@ def init_db_schema(engine: Engine) -> None:
 
 def create_post(engine: Engine, post: Post) -> Post:
     """TODO"""
-    #post_table = Base.metadata.tables["posts"]
-    #stmt = insert(user_table).values(text=text, author=author, created_at=created_at)
-    #with ENGINE.begin() as conn:
-    #    result = conn.execute(stmt)
     with Session(engine) as session:
-        session.add(post)
-        session.commit()
-    # Post now has an ID.
+        with session.begin():
+            session.add(post)
     return post
 
 

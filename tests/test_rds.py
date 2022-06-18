@@ -1,7 +1,9 @@
 """Tests rds.py."""
 
-from sqlalchemy.engine import Connection
-from populare_db_proxy.db_schema import Base
+from sqlalchemy import select
+from sqlalchemy.engine import Engine
+from sqlalchemy.orm import Session
+from populare_db_proxy.db_schema import Post
 
 
 def test_rds_creation(mocked_rds: dict) -> None:
@@ -14,12 +16,13 @@ def test_rds_creation(mocked_rds: dict) -> None:
     assert True
 
 
-def test_local_db_creation(
-        local_db: Connection
-) -> None:
+def test_local_db_creation(populated_local_db: Engine) -> None:
     """Tests that the local database was created successfully.
 
-    :param local_db: A connection to the local, in-memory database.
+    :param populated_local_db: A connection to the local, in-memory database.
     """
-    #print(Base.metadata.tables)
-    assert True
+    with Session(populated_local_db) as session:
+        with session.begin():
+            statement = select(Post)
+            results = session.execute(statement)
+            assert list(results)
