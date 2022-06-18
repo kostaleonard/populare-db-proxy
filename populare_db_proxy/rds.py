@@ -14,14 +14,16 @@ READ_POSTS_LIMIT = 50
 
 
 def init_db_schema(engine: Engine) -> None:
-    """Initializes the database schema."""
-    # TODO if it already exists, does this raise an error?
+    """Initializes the database schema.
+
+    :param engine: The database engine.
+    """
     Base.metadata.create_all(engine)
 
 
 def create_post(engine: Engine, post: Post) -> Post:
     """TODO"""
-    with Session(engine) as session:
+    with Session(engine, expire_on_commit=False) as session:
         with session.begin():
             session.add(post)
     return post
