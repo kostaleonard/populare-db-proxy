@@ -1,11 +1,15 @@
 """Contains test fixtures."""
 
 import os
+from datetime import datetime
 import pytest
 import boto3
 from moto import mock_rds
-from sqlalchemy import Table, Column, Integer, String, MetaData, create_engine
-from sqlalchemy.engine import Connection
+from sqlalchemy import create_engine, select
+from sqlalchemy.engine import Engine
+from sqlalchemy.orm import Session
+from populare_db_proxy.db_schema import Post
+from populare_db_proxy.rds import init_db_schema, create_post
 
 TEST_REGION = "us-east-2"
 DB_NAME = "populare_db"
@@ -66,20 +70,20 @@ def fixture_mocked_rds(aws_credentials: None) -> dict:
 
 
 @pytest.fixture(name="local_db")
-def fixture_local_db() -> Connection:
+def fixture_local_db() -> Engine:
     """Creates a local SQLite database for testing.
 
     :return: A connection to the local, in-memory database.
     """
     engine = create_engine(TEST_IN_MEM_DB_URL)
-    with engine.connect() as conn:
-        # TODO populate the database
-        meta = MetaData()
-        students = Table(
-            'students', meta,
-            Column('id', Integer, primary_key=True),
-            Column('name', String),
-            Column('lastname', String),
-        )
-        meta.create_all(engine)
-        yield conn
+    init_db_schema(engine)
+    post = Post(text="text", author="author", created_at=datetime.now())
+    create_post(engine, post)
+    post = Post(text="text", author="author", created_at=datetime.now())
+    create_post(engine, post)
+    with Session(engine) as session:
+        with session.begin():
+            statement = select(Post)
+            results = session.execute(statement)
+            print(list(results))
+    yield engine
