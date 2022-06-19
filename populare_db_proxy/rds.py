@@ -16,18 +16,41 @@ READ_POSTS_LIMIT = 50
 def init_db_schema(engine: Engine) -> None:
     """Initializes the database schema.
 
-    :param engine: The database engine.
+    :param engine: A connection to the database.
     """
     Base.metadata.create_all(engine)
 
 
 def create_post(engine: Engine, post: Post) -> Post:
-    """TODO"""
+    """Adds a post to the database.
+
+    :param engine: A connection to the database.
+    :param post: The post to add. The post need not have an explicitly set id
+        field (i.e., it may be None). If None, post.id will be set by
+        autoincrement; if set in advance, post.id will be kept, but this
+        operation will raise an IntegrityError if there already exists a post
+        in the database with that id. Therefore, we recommend that users do not
+        supply an explicit id field.
+    :return: The input post; post.id will be set if it was not before.
+    """
     with Session(engine, expire_on_commit=False) as session:
         with session.begin():
             session.add(post)
     return post
 
 
-def read_posts(engine: Engine, limit: int = READ_POSTS_LIMIT, start_at: datetime | None = None) -> list[Post]:
-    """TODO read the most recent limit posts."""
+def read_posts(
+        engine: Engine,
+        limit: int = READ_POSTS_LIMIT,
+        before: datetime | None = None
+) -> list[Post]:
+    """Returns a list of posts from the database.
+
+    :param engine: A connection to the database.
+    :param limit: The maximum number of posts to return from the database.
+    :param before: If supplied, return posts created earlier than this date; if
+        None, return the most recent posts (`before` is set to datetime.now()).
+    :return: The no more than `limit` most recent posts created earlier than
+        `before` (or now, if not supplied) in chronological order.
+    """
+    # TODO

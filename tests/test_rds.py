@@ -5,7 +5,7 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import OperationalError, IntegrityError
 from populare_db_proxy.db_schema import Post
 from populare_db_proxy.rds import init_db_schema, create_post
 from tests.conftest import DB_NAME
@@ -61,3 +61,94 @@ def test_init_db_schema_twice_no_error(
     init_db_schema(uninitialized_local_db)
     create_post(uninitialized_local_db, post)
     assert post.id
+
+
+def test_create_post_adds_to_table(empty_local_db: Engine) -> None:
+    """Tests that create_post adds posts to the database table.
+
+    :param empty_local_db: A connection to the local, in-memory database.
+    """
+    # TODO
+
+
+def test_create_post_adds_post_id(empty_local_db: Engine) -> None:
+    """Tests that create_post adds an ID field to posts.
+
+    :param empty_local_db: A connection to the local, in-memory database.
+    """
+    # TODO
+
+
+def test_create_post_return_value_matches_input(
+        empty_local_db: Engine
+) -> None:
+    """Tests that create_post's return value is the same object as the input.
+
+    :param empty_local_db: A connection to the local, in-memory database.
+    """
+    # TODO
+
+
+def test_create_post_twice_same_object_adds_once(
+        empty_local_db: Engine
+) -> None:
+    """Tests that create_post will only add the same post object once when
+    called twice.
+
+    :param empty_local_db: A connection to the local, in-memory database.
+    """
+    # TODO
+
+
+def test_create_post_twice_different_objects_same_content_adds_twice(
+        empty_local_db: Engine
+) -> None:
+    """Tests that create_post adds different objects with the same content
+    twice.
+
+    :param empty_local_db: A connection to the local, in-memory database.
+    """
+    # TODO
+
+
+def test_create_post_auto_increment_id(empty_local_db: Engine) -> None:
+    """Tests that create_post auto-increments IDs.
+
+    :param empty_local_db: A connection to the local, in-memory database.
+    """
+    # TODO
+
+
+def test_create_post_explicit_id(empty_local_db: Engine) -> None:
+    """Tests that create_post accepts explicit post IDs.
+
+    :param empty_local_db: A connection to the local, in-memory database.
+    """
+    post1 = Post(
+        text="text",
+        author="author",
+        created_at=datetime.now(),
+        id=10
+    )
+    post2 = Post(
+        text="text",
+        author="author",
+        created_at=datetime.now(),
+        id=20
+    )
+    create_post(empty_local_db, post1)
+    create_post(empty_local_db, post2)
+    assert post1.id == 10
+    assert post2.id == 20
+
+
+def test_create_post_id_collision_raises_error(empty_local_db: Engine) -> None:
+    """Tests that create_post raises an error on ID collision.
+
+    :param empty_local_db: A connection to the local, in-memory database.
+    """
+    post1 = Post(text="text", author="author", created_at=datetime.now(), id=1)
+    post2 = Post(text="text", author="author", created_at=datetime.now(), id=1)
+    create_post(empty_local_db, post1)
+    with pytest.raises(IntegrityError):
+        create_post(empty_local_db, post2)
