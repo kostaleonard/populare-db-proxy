@@ -6,6 +6,7 @@ https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.IAMDBAuth.Co
 
 from __future__ import annotations
 from datetime import datetime
+from sqlalchemy import select
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 from populare_db_proxy.db_schema import Base, Post
@@ -53,4 +54,13 @@ def read_posts(
     :return: The no more than `limit` most recent posts created earlier than
         `before` (or now, if not supplied) in chronological order.
     """
-    # TODO
+    before = before if before else datetime.now()
+    statement = (
+        select(Post)
+            .where(Post.created_at < before)
+            .order_by(Post.created_at)
+            .limit(limit)
+    )
+    with Session(engine, expire_on_commit=False) as session:
+        result = [row[0] for row in session.execute(statement)]
+    return result

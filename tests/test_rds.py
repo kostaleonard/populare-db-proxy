@@ -7,7 +7,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import OperationalError, IntegrityError
 from populare_db_proxy.db_schema import Post
-from populare_db_proxy.rds import init_db_schema, create_post
+from populare_db_proxy.rds import init_db_schema, create_post, read_posts
 from tests.conftest import DB_NAME
 
 
@@ -152,3 +152,15 @@ def test_create_post_id_collision_raises_error(empty_local_db: Engine) -> None:
     create_post(empty_local_db, post1)
     with pytest.raises(IntegrityError):
         create_post(empty_local_db, post2)
+
+
+def test_read_posts_returns_posts(populated_local_db: Engine) -> None:
+    """Tests that read_posts returns a list of posts.
+
+    :param populated_local_db: A connection to the local, in-memory databse.
+    """
+    posts = read_posts(populated_local_db)
+    assert posts
+
+
+# TODO more read_posts tests
