@@ -52,13 +52,15 @@ def read_posts(
     :param before: If supplied, return posts created earlier than this date; if
         None, return the most recent posts (`before` is set to datetime.now()).
     :return: The no more than `limit` most recent posts created earlier than
-        `before` (or now, if not supplied) in chronological order.
+        `before` (or now, if not supplied) in chronological order. The
+        chronological order will be most recent first; index 0 will have the
+        most recent post created earlier than `before`.
     """
     before = before if before else datetime.now()
     statement = (
         select(Post)
             .where(Post.created_at < before)
-            .order_by(Post.created_at)
+            .order_by(Post.created_at.desc())
             .limit(limit)
     )
     with Session(engine, expire_on_commit=False) as session:

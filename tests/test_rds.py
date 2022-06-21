@@ -182,9 +182,86 @@ def test_create_post_id_collision_raises_error(empty_local_db: Engine) -> None:
 def test_read_posts_returns_posts(populated_local_db: Engine) -> None:
     """Tests that read_posts returns a list of posts.
 
-    :param populated_local_db: A connection to the local, in-memory databse.
+    :param populated_local_db: A connection to the local, in-memory database.
     """
     assert read_posts(populated_local_db)
 
 
-# TODO more read_posts tests
+def test_read_posts_observes_limit(populated_local_db: Engine) -> None:
+    """Tests that read_posts observes the limit argument.
+
+    :param populated_local_db: A connection to the local, in-memory database.
+    """
+    limit = 3
+    posts = read_posts(populated_local_db, limit=limit)
+    assert len(posts) == limit
+
+
+def test_read_posts_sorts_output(empty_local_db: Engine) -> None:
+    """Tests that read_posts orders the output chronologically.
+
+    :param empty_local_db: A connection to the local, in-memory database.
+    """
+    # Create the posts in chronological order.
+    post1 = Post(text="first", author="author", created_at=datetime.now())
+    post2 = Post(text="second", author="author", created_at=datetime.now())
+    post3 = Post(text="third", author="author", created_at=datetime.now())
+    post4 = Post(text="fourth", author="author", created_at=datetime.now())
+    # Add the posts in arbitrary order.
+    create_post(empty_local_db, post2)
+    create_post(empty_local_db, post4)
+    create_post(empty_local_db, post3)
+    create_post(empty_local_db, post1)
+    # Returned posts should be in chronological order again.
+    posts = read_posts(empty_local_db)
+    assert posts[0].text == "fourth"
+    assert posts[1].text == "third"
+    assert posts[2].text == "second"
+    assert posts[3].text == "first"
+
+
+def test_read_posts_with_limit_has_most_recent_posts(
+        empty_local_db: Engine
+) -> None:
+    """Tests that read_posts returns the most recent posts when a limit is
+    used.
+
+    :param empty_local_db: A connection to the local, in-memory database.
+    """
+    # Create the posts in chronological order.
+    post1 = Post(text="first", author="author", created_at=datetime.now())
+    post2 = Post(text="second", author="author", created_at=datetime.now())
+    post3 = Post(text="third", author="author", created_at=datetime.now())
+    post4 = Post(text="fourth", author="author", created_at=datetime.now())
+    # Add the posts in arbitrary order.
+    create_post(empty_local_db, post2)
+    create_post(empty_local_db, post4)
+    create_post(empty_local_db, post3)
+    create_post(empty_local_db, post1)
+    # Returned posts should be in chronological order again.
+    limit = 3
+    posts = read_posts(empty_local_db, limit=limit)
+    assert len(posts) == limit
+    assert posts[0].text == "fourth"
+    assert posts[1].text == "third"
+    assert posts[2].text == "second"
+
+
+def test_read_posts_before_datetime(empty_local_db: Engine) -> None:
+    """Tests that read_posts returns posts before an explicit datetime.
+
+    :param empty_local_db: A connection to the local, in-memory database.
+    """
+    for idx in range(1, 5):
+        post = Post(
+            text=str(idx),
+            author="author",
+            created_at=datetime(2022, 1, idx)
+        )
+        create_post(empty_local_db, post)
+    before = datetime(2022, 1, 3, hour=6)
+    posts = read_posts(empty_local_db, before=before)
+    assert len(posts) == 3
+    assert posts[0].text == "3"
+    assert posts[1].text == "2"
+    assert posts[2].text == "1"
