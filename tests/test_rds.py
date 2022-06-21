@@ -68,7 +68,12 @@ def test_create_post_adds_to_table(empty_local_db: Engine) -> None:
 
     :param empty_local_db: A connection to the local, in-memory database.
     """
-    # TODO
+    post = Post(text="text", author="author", created_at=datetime.now())
+    assert not read_posts(empty_local_db)
+    create_post(empty_local_db, post)
+    posts = read_posts(empty_local_db)
+    assert len(posts) == 1
+    assert posts[0].id == post.id
 
 
 def test_create_post_adds_post_id(empty_local_db: Engine) -> None:
@@ -76,7 +81,10 @@ def test_create_post_adds_post_id(empty_local_db: Engine) -> None:
 
     :param empty_local_db: A connection to the local, in-memory database.
     """
-    # TODO
+    post = Post(text="text", author="author", created_at=datetime.now())
+    assert not post.id
+    create_post(empty_local_db, post)
+    assert post.id
 
 
 def test_create_post_return_value_matches_input(
@@ -86,7 +94,9 @@ def test_create_post_return_value_matches_input(
 
     :param empty_local_db: A connection to the local, in-memory database.
     """
-    # TODO
+    post = Post(text="text", author="author", created_at=datetime.now())
+    returned_post = create_post(empty_local_db, post)
+    assert post is returned_post
 
 
 def test_create_post_twice_same_object_adds_once(
@@ -97,7 +107,11 @@ def test_create_post_twice_same_object_adds_once(
 
     :param empty_local_db: A connection to the local, in-memory database.
     """
-    # TODO
+    post = Post(text="text", author="author", created_at=datetime.now())
+    create_post(empty_local_db, post)
+    create_post(empty_local_db, post)
+    posts = read_posts(empty_local_db)
+    assert len(posts) == 1
 
 
 def test_create_post_twice_different_objects_same_content_adds_twice(
@@ -108,7 +122,13 @@ def test_create_post_twice_different_objects_same_content_adds_twice(
 
     :param empty_local_db: A connection to the local, in-memory database.
     """
-    # TODO
+    now = datetime.now()
+    post1 = Post(text="text", author="author", created_at=now)
+    post2 = Post(text="text", author="author", created_at=now)
+    create_post(empty_local_db, post1)
+    create_post(empty_local_db, post2)
+    posts = read_posts(empty_local_db)
+    assert len(posts) == 2
 
 
 def test_create_post_auto_increment_id(empty_local_db: Engine) -> None:
@@ -116,7 +136,12 @@ def test_create_post_auto_increment_id(empty_local_db: Engine) -> None:
 
     :param empty_local_db: A connection to the local, in-memory database.
     """
-    # TODO
+    post1 = Post(text="text", author="author", created_at=datetime.now())
+    post2 = Post(text="text", author="author", created_at=datetime.now())
+    create_post(empty_local_db, post1)
+    create_post(empty_local_db, post2)
+    assert post1.id == 1
+    assert post2.id == 2
 
 
 def test_create_post_explicit_id(empty_local_db: Engine) -> None:
@@ -159,8 +184,7 @@ def test_read_posts_returns_posts(populated_local_db: Engine) -> None:
 
     :param populated_local_db: A connection to the local, in-memory databse.
     """
-    posts = read_posts(populated_local_db)
-    assert posts
+    assert read_posts(populated_local_db)
 
 
 # TODO more read_posts tests
