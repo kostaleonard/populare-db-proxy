@@ -10,6 +10,7 @@ AUTHOR_SIZE = 255
 
 class Post(Base):
     """Defines the posts table."""
+    # pylint: disable=too-few-public-methods
 
     __tablename__ = "posts"
     id = Column(Integer, primary_key=True, autoincrement=True)
