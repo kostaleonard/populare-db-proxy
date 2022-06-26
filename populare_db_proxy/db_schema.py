@@ -1,9 +1,7 @@
 """Contains classes for the database schema."""
 
-from sqlalchemy.orm import declarative_base
 from populare_db_proxy.app import db
 
-Base = declarative_base()
 TEXT_SIZE = 255
 AUTHOR_SIZE = 255
 

@@ -42,12 +42,13 @@ def test_init_db_schema_creates_tables(
 
     :param uninitialized_local_db: A connection to the local database.
     """
+    # pylint: disable=unused-argument
     post = Post(text="text", author="author", created_at=datetime.now())
     with pytest.raises(OperationalError):
         # Because there are no tables, inserting raises an error.
-        create_post(uninitialized_local_db, post)
+        create_post(post)
     init_db_schema()
-    create_post(uninitialized_local_db, post)
+    create_post(post)
     assert post.id
 
 
@@ -58,10 +59,11 @@ def test_init_db_schema_twice_no_error(
 
     :param uninitialized_local_db: A connection to the local database.
     """
+    # pylint: disable=unused-argument
     post = Post(text="text", author="author", created_at=datetime.now())
     init_db_schema()
     init_db_schema()
-    create_post(uninitialized_local_db, post)
+    create_post(post)
     assert post.id
 
 
@@ -70,9 +72,10 @@ def test_create_post_adds_to_table(empty_local_db: Engine) -> None:
 
     :param empty_local_db: A connection to the local database.
     """
+    # pylint: disable=unused-argument
     post = Post(text="text", author="author", created_at=datetime.now())
     assert not read_posts()
-    create_post(empty_local_db, post)
+    create_post(post)
     posts = read_posts()
     assert len(posts) == 1
     assert posts[0].id == post.id
@@ -83,9 +86,10 @@ def test_create_post_adds_post_id(empty_local_db: Engine) -> None:
 
     :param empty_local_db: A connection to the local database.
     """
+    # pylint: disable=unused-argument
     post = Post(text="text", author="author", created_at=datetime.now())
     assert not post.id
-    create_post(empty_local_db, post)
+    create_post(post)
     assert post.id
 
 
@@ -96,8 +100,9 @@ def test_create_post_return_value_matches_input(
 
     :param empty_local_db: A connection to the local database.
     """
+    # pylint: disable=unused-argument
     post = Post(text="text", author="author", created_at=datetime.now())
-    returned_post = create_post(empty_local_db, post)
+    returned_post = create_post(post)
     assert post is returned_post
 
 
@@ -109,9 +114,10 @@ def test_create_post_twice_same_object_adds_once(
 
     :param empty_local_db: A connection to the local database.
     """
+    # pylint: disable=unused-argument
     post = Post(text="text", author="author", created_at=datetime.now())
-    create_post(empty_local_db, post)
-    create_post(empty_local_db, post)
+    create_post(post)
+    create_post(post)
     posts = read_posts()
     assert len(posts) == 1
 
@@ -124,11 +130,12 @@ def test_create_post_twice_different_objects_same_content_adds_twice(
 
     :param empty_local_db: A connection to the local database.
     """
+    # pylint: disable=unused-argument
     now = datetime.now()
     post1 = Post(text="text", author="author", created_at=now)
     post2 = Post(text="text", author="author", created_at=now)
-    create_post(empty_local_db, post1)
-    create_post(empty_local_db, post2)
+    create_post(post1)
+    create_post(post2)
     posts = read_posts()
     assert len(posts) == 2
 
@@ -138,10 +145,11 @@ def test_create_post_auto_increment_id(empty_local_db: Engine) -> None:
 
     :param empty_local_db: A connection to the local database.
     """
+    # pylint: disable=unused-argument
     post1 = Post(text="text", author="author", created_at=datetime.now())
     post2 = Post(text="text", author="author", created_at=datetime.now())
-    create_post(empty_local_db, post1)
-    create_post(empty_local_db, post2)
+    create_post(post1)
+    create_post(post2)
     assert post1.id == 1
     assert post2.id == 2
 
@@ -151,6 +159,7 @@ def test_create_post_explicit_id(empty_local_db: Engine) -> None:
 
     :param empty_local_db: A connection to the local database.
     """
+    # pylint: disable=unused-argument
     post1 = Post(
         text="text",
         author="author",
@@ -163,8 +172,8 @@ def test_create_post_explicit_id(empty_local_db: Engine) -> None:
         created_at=datetime.now(),
         id=20
     )
-    create_post(empty_local_db, post1)
-    create_post(empty_local_db, post2)
+    create_post(post1)
+    create_post(post2)
     assert post1.id == 10
     assert post2.id == 20
 
@@ -174,11 +183,12 @@ def test_create_post_id_collision_raises_error(empty_local_db: Engine) -> None:
 
     :param empty_local_db: A connection to the local database.
     """
+    # pylint: disable=unused-argument
     post1 = Post(text="text", author="author", created_at=datetime.now(), id=1)
     post2 = Post(text="text", author="author", created_at=datetime.now(), id=1)
-    create_post(empty_local_db, post1)
+    create_post(post1)
     with pytest.raises(IntegrityError):
-        create_post(empty_local_db, post2)
+        create_post(post2)
 
 
 def test_read_posts_returns_posts(populated_local_db: Engine) -> None:
@@ -186,6 +196,7 @@ def test_read_posts_returns_posts(populated_local_db: Engine) -> None:
 
     :param populated_local_db: A connection to the local database.
     """
+    # pylint: disable=unused-argument
     assert read_posts()
 
 
@@ -194,6 +205,7 @@ def test_read_posts_observes_limit(populated_local_db: Engine) -> None:
 
     :param populated_local_db: A connection to the local database.
     """
+    # pylint: disable=unused-argument
     limit = 3
     posts = read_posts(limit=limit)
     assert len(posts) == limit
@@ -204,16 +216,17 @@ def test_read_posts_sorts_output(empty_local_db: Engine) -> None:
 
     :param empty_local_db: A connection to the local database.
     """
+    # pylint: disable=unused-argument
     # Create the posts in chronological order.
     post1 = Post(text="first", author="author", created_at=datetime.now())
     post2 = Post(text="second", author="author", created_at=datetime.now())
     post3 = Post(text="third", author="author", created_at=datetime.now())
     post4 = Post(text="fourth", author="author", created_at=datetime.now())
     # Add the posts in arbitrary order.
-    create_post(empty_local_db, post2)
-    create_post(empty_local_db, post4)
-    create_post(empty_local_db, post3)
-    create_post(empty_local_db, post1)
+    create_post(post2)
+    create_post(post4)
+    create_post(post3)
+    create_post(post1)
     # Returned posts should be in chronological order again.
     posts = read_posts()
     assert posts[0].text == "fourth"
@@ -230,16 +243,17 @@ def test_read_posts_with_limit_has_most_recent_posts(
 
     :param empty_local_db: A connection to the local database.
     """
+    # pylint: disable=unused-argument
     # Create the posts in chronological order.
     post1 = Post(text="first", author="author", created_at=datetime.now())
     post2 = Post(text="second", author="author", created_at=datetime.now())
     post3 = Post(text="third", author="author", created_at=datetime.now())
     post4 = Post(text="fourth", author="author", created_at=datetime.now())
     # Add the posts in arbitrary order.
-    create_post(empty_local_db, post2)
-    create_post(empty_local_db, post4)
-    create_post(empty_local_db, post3)
-    create_post(empty_local_db, post1)
+    create_post(post2)
+    create_post(post4)
+    create_post(post3)
+    create_post(post1)
     # Returned posts should be in chronological order again.
     limit = 3
     posts = read_posts(limit=limit)
@@ -254,13 +268,14 @@ def test_read_posts_before_datetime(empty_local_db: Engine) -> None:
 
     :param empty_local_db: A connection to the local database.
     """
+    # pylint: disable=unused-argument
     for idx in range(1, 5):
         post = Post(
             text=str(idx),
             author="author",
             created_at=datetime(2022, 1, idx)
         )
-        create_post(empty_local_db, post)
+        create_post(post)
     before = datetime(2022, 1, 3, hour=6)
     posts = read_posts(before=before)
     assert len(posts) == 3
@@ -274,8 +289,9 @@ def _parallel_create_post(idx: int) -> None:
 
     :param idx: The worker index; unused.
     """
+    # pylint: disable=unused-argument
     post = Post(text="text", author="author", created_at=datetime.now())
-    create_post(None, post)
+    create_post(post)
 
 
 def test_parallel_writes_no_race_condition(empty_local_db: Engine) -> None:
@@ -284,6 +300,7 @@ def test_parallel_writes_no_race_condition(empty_local_db: Engine) -> None:
 
     :param empty_local_db: A connection to the local database.
     """
+    # pylint: disable=unused-argument
     with Pool(POOL_SIZE) as pool:
         pool.map(_parallel_create_post, range(NUM_PARALLEL_POSTS))
     # This number could be anything >= 1.

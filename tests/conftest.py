@@ -1,4 +1,5 @@
 """Contains test fixtures."""
+# pylint: disable=wrong-import-position
 
 import os
 os.environ["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/populare_test.db"
@@ -100,5 +101,5 @@ def fixture_populated_local_db(empty_local_db: Engine) -> Engine:
             author=f"author{idx}",
             created_at=datetime.now()
         )
-        create_post(empty_local_db, post)
+        create_post(post)
     yield empty_local_db

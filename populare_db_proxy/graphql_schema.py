@@ -6,11 +6,13 @@ https://docs.graphene-python.org/projects/sqlalchemy/en/latest/tutorial/
 
 from __future__ import annotations
 from datetime import datetime
-from graphene import ObjectType, String, Int, DateTime, Schema
-from graphql.execution.base import ResolveInfo
-from populare_db_proxy.rds import read_posts as db_read_posts, init_db_schema, create_post as db_create_post
+from graphene import ObjectType, String, Int, DateTime, Schema, ResolveInfo
+from populare_db_proxy.rds import (
+    read_posts as db_read_posts,
+    init_db_schema,
+    create_post as db_create_post
+)
 from populare_db_proxy.db_schema import Post
-from populare_db_proxy.app import db
 
 
 class Query(ObjectType):
@@ -38,6 +40,7 @@ class Query(ObjectType):
         :param info: The GraphQL context.
         :return: The response to an init_db query.
         """
+        # pylint: disable=unused-argument
         init_db_schema()
         return "ok"
 
@@ -62,6 +65,7 @@ class Query(ObjectType):
             datetime.now()).
         :return: The response to a read_posts query.
         """
+        # pylint: disable=unused-argument
         return str(db_read_posts(limit=limit, before=before))
 
     @staticmethod
@@ -80,12 +84,15 @@ class Query(ObjectType):
 
         :param root: The root GraphQL object.
         :param info: The GraphQL context.
-        TODO docstring
+        :param text: The text of the post.
+        :param author: The author of the post.
+        :param created_at: The datetime at which the post was created. For
+            POST requests, format this as an ISO string.
         :return: The response to a create_post query.
         """
-        # TODO docstring
+        # pylint: disable=unused-argument
         post = Post(text=text, author=author, created_at=created_at)
-        db_create_post(None, post)
+        db_create_post(post)
         return str(post)
 
 

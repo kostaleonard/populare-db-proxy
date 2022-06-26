@@ -7,5 +7,4 @@ sqlalchemy~=1.4.37
 Flask
 Flask-GraphQL
 graphene
-graphene_sqlalchemy
 Flask-SQLAlchemy

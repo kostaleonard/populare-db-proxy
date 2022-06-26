@@ -1,11 +1,8 @@
 """Contains the proxy server."""
 
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_graphql import GraphQLView
-from sqlalchemy.engine import create_engine
 from populare_db_proxy.graphql_schema import get_schema
-from populare_db_proxy.app import db, app
+from populare_db_proxy.app import app
 
 
 def main() -> None:

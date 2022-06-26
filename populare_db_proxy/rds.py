@@ -6,10 +6,9 @@ https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.IAMDBAuth.Co
 
 from __future__ import annotations
 from datetime import datetime
-from sqlalchemy import select, create_engine
-from sqlalchemy.engine import Engine
+from sqlalchemy import select
 from sqlalchemy.orm import Session
-from populare_db_proxy.db_schema import Post, Base
+from populare_db_proxy.db_schema import Post
 from populare_db_proxy.app import db
 
 READ_POSTS_LIMIT = 50
@@ -20,7 +19,7 @@ def init_db_schema() -> None:
     db.create_all()
 
 
-def create_post(engine: Engine, post: Post) -> Post:
+def create_post(post: Post) -> Post:
     """Adds a post to the database.
 
     :param post: The post to add. The post need not have an explicitly set id
