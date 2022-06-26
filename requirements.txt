@@ -8,3 +8,4 @@ Flask
 Flask-GraphQL
 graphene
 graphene_sqlalchemy
+Flask-SQLAlchemy

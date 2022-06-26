@@ -6,7 +6,7 @@ https://docs.graphene-python.org/projects/sqlalchemy/en/latest/tutorial/
 
 from __future__ import annotations
 from datetime import datetime
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
 from graphene import ObjectType, String, Int, DateTime, Schema
 from graphql.execution.base import ResolveInfo
 from populare_db_proxy.rds import (
@@ -14,7 +14,8 @@ from populare_db_proxy.rds import (
     read_posts as db_read_posts,
     ENGINE_URL_LOCAL
 )
-ENGINE = create_engine(ENGINE_URL_LOCAL).connect()
+from populare_db_proxy.db_schema import Post
+from populare_db_proxy.app import db
 
 
 class Query(ObjectType):
@@ -37,7 +38,15 @@ class Query(ObjectType):
         :param info: The GraphQL context.
         :return: The response to an init_db query.
         """
-        init_db_schema(ENGINE)
+
+        db.create_all()
+        '''
+        post = Post(text="text", author="author", created_at=datetime.now())
+        db.session.add(post)
+        db.session.commit()
+        print(Post.query.all())
+        '''
+        #init_db_schema(db.engine)
         return "ok"
 
     @staticmethod
@@ -61,7 +70,18 @@ class Query(ObjectType):
             datetime.now()).
         :return: The response to a read_posts query.
         """
-        return str(db_read_posts(ENGINE, limit=limit, before=before))
+        
+        before = before if before else datetime.now()
+        statement = (
+            select(Post)
+                .where(Post.created_at < before)
+                .order_by(Post.created_at.desc())
+                .limit(limit)
+        )
+        result = [row[0] for row in db.session.execute(statement)]
+        return str(result)
+
+        #return str(db_read_posts(db.engine, limit=limit, before=before))
 
 
 def get_schema() -> Schema:

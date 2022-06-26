@@ -15,7 +15,8 @@ from populare_db_proxy.db_schema import Base, Post
 HOST = "sqlalchemytutorial.*****.eu-central1.rds.amazonaws.com"
 DB_NAME = "populare_db"
 ENGINE_URL = f"mysql+mysqlconnector://{'user'}:{'pass'}@{HOST}/{DB_NAME}"
-ENGINE_URL_LOCAL = "sqlite+pysqlite:///:memory:"
+#ENGINE_URL_LOCAL = "sqlite+pysqlite:///:memory:"
+ENGINE_URL_LOCAL = "sqlite:////tmp/test.db"
 READ_POSTS_LIMIT = 50
 
 
