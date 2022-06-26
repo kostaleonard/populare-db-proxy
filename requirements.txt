@@ -2,7 +2,7 @@ pylint
 pytest~=7.1.2
 pytest-cov
 boto3~=1.24.11
-moto~=3.1.13
+moto==3.1.13
 sqlalchemy~=1.4.37
 Flask
 Flask-GraphQL
