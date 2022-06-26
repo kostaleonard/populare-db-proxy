@@ -11,11 +11,12 @@ from populare_db_proxy.db_schema import Post
 def test_post_fields_not_nullable(empty_local_db: Engine) -> None:
     """Tests that post fields are not nullable.
 
-    :param empty_local_db: A connection to the local, in-memory database.
+    :param empty_local_db: A connection to the local database.
     """
+    # pylint: disable=unused-argument
     post = Post()
     with pytest.raises(IntegrityError):
-        create_post(empty_local_db, post)
+        create_post(post)
 
 
 def test_post_repr_contains_key_fields() -> None:

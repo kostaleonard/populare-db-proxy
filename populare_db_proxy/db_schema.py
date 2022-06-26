@@ -1,22 +1,20 @@
 """Contains classes for the database schema."""
 
-from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.orm import declarative_base
+from populare_db_proxy.app_data import db
 
-Base = declarative_base()
 TEXT_SIZE = 255
 AUTHOR_SIZE = 255
 
 
-class Post(Base):
+class Post(db.Model):
     """Defines the posts table."""
     # pylint: disable=too-few-public-methods
 
     __tablename__ = "posts"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    text = Column(String(TEXT_SIZE), nullable=False)
-    author = Column(String(AUTHOR_SIZE), nullable=False)
-    created_at = Column(DateTime, nullable=False)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    text = db.Column(db.String(TEXT_SIZE), nullable=False)
+    author = db.Column(db.String(AUTHOR_SIZE), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False)
 
     def __repr__(self) -> str:
         """Returns the string representation of a row in the table.
