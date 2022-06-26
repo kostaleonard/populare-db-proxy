@@ -5,7 +5,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_graphql import GraphQLView
 from sqlalchemy.engine import create_engine
 from populare_db_proxy.graphql_schema import get_schema
-from populare_db_proxy.rds import ENGINE_URL_LOCAL
 from populare_db_proxy.app import db, app
 
 

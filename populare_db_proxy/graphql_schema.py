@@ -8,7 +8,7 @@ from __future__ import annotations
 from datetime import datetime
 from graphene import ObjectType, String, Int, DateTime, Schema
 from graphql.execution.base import ResolveInfo
-from populare_db_proxy.rds import read_posts as db_read_posts, init_db_schema
+from populare_db_proxy.rds import read_posts as db_read_posts, init_db_schema, create_post as db_create_post
 from populare_db_proxy.db_schema import Post
 from populare_db_proxy.app import db
 
@@ -20,6 +20,11 @@ class Query(ObjectType):
     read_posts = String(
         limit=Int(required=False),
         before=DateTime(required=False)
+    )
+    create_post = String(
+        text=String(),
+        author=String(),
+        created_at=DateTime()
     )
 
     @staticmethod
@@ -58,6 +63,30 @@ class Query(ObjectType):
         :return: The response to a read_posts query.
         """
         return str(db_read_posts(limit=limit, before=before))
+
+    @staticmethod
+    def resolve_create_post(
+            root: ObjectType | None,
+            info: ResolveInfo,
+            text: str,
+            author: str,
+            created_at: datetime
+    ) -> str:
+        """Returns the response to a create_post query.
+
+        createPost(text: "my text", author: "my author", createdAt:
+        "2006-01-02T15:04:05") }' -H "Content-Type: application/graphql" -X
+        POST http://localhost:5000/graphql
+
+        :param root: The root GraphQL object.
+        :param info: The GraphQL context.
+        TODO docstring
+        :return: The response to a create_post query.
+        """
+        # TODO docstring
+        post = Post(text=text, author=author, created_at=created_at)
+        db_create_post(None, post)
+        return str(post)
 
 
 def get_schema() -> Schema:
