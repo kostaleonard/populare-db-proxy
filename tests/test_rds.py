@@ -1,6 +1,7 @@
 """Tests rds.py."""
 
 from datetime import datetime
+from multiprocessing import Pool
 import pytest
 from sqlalchemy import select
 from sqlalchemy.engine import Engine
@@ -9,6 +10,9 @@ from sqlalchemy.exc import OperationalError, IntegrityError
 from populare_db_proxy.db_schema import Post
 from populare_db_proxy.rds import init_db_schema, create_post, read_posts
 from tests.conftest import DB_NAME
+
+POOL_SIZE = 10
+NUM_PARALLEL_POSTS = 1000
 
 
 def test_rds_creation(mocked_rds: dict) -> None:
@@ -263,3 +267,30 @@ def test_read_posts_before_datetime(empty_local_db: Engine) -> None:
     assert posts[0].text == "3"
     assert posts[1].text == "2"
     assert posts[2].text == "1"
+
+
+def _parallel_create_post(idx: int) -> None:
+    """Creates a sample post; for use in parallel processing.
+
+    :param idx: The worker index; unused.
+    """
+    post = Post(text="text", author="author", created_at=datetime.now())
+    create_post(None, post)
+
+
+def test_parallel_writes_no_race_condition(empty_local_db: Engine) -> None:
+    """Tests that many create_post calls can run in parallel without any
+    integrity violations.
+
+    :param empty_local_db: A connection to the local database.
+    """
+    with Pool(POOL_SIZE) as pool:
+        pool.map(_parallel_create_post, range(NUM_PARALLEL_POSTS))
+    # This number could be anything >= 1.
+    num_erroneous_additions = 10
+    posts = read_posts(limit=NUM_PARALLEL_POSTS + num_erroneous_additions)
+    assert len(posts) == NUM_PARALLEL_POSTS
+    assert (
+            set(post.id for post in posts) ==
+            set(range(1, NUM_PARALLEL_POSTS + 1))
+    )
