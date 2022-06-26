@@ -1,14 +1,15 @@
 """Contains test fixtures."""
 
 import os
+os.environ["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/populare_test.db"
 from datetime import datetime
 import pytest
 import boto3
 from moto import mock_rds
-from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from populare_db_proxy.db_schema import Post
 from populare_db_proxy.rds import init_db_schema, create_post
+from populare_db_proxy.app import db
 
 TEST_REGION = "us-east-2"
 DB_NAME = "populare_db"
@@ -19,7 +20,6 @@ MASTER_USERNAME = "testing"
 MASTER_PASSWORD = "testingtesting"
 PORT = 3306
 MAX_ALLOCATED_STORAGE_GB = 20
-TEST_IN_MEM_DB_URL = "sqlite+pysqlite:///:memory:"
 
 
 @pytest.fixture(name="aws_credentials", scope="session")
@@ -74,7 +74,8 @@ def fixture_uninitialized_local_db() -> Engine:
 
     :return: A connection to the local, in-memory database.
     """
-    yield create_engine(TEST_IN_MEM_DB_URL)
+    yield db.engine
+    db.drop_all()
 
 
 @pytest.fixture(name="empty_local_db")

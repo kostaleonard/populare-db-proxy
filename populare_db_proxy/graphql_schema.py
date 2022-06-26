@@ -40,12 +40,12 @@ class Query(ObjectType):
         """
 
         db.create_all()
-        '''
+
         post = Post(text="text", author="author", created_at=datetime.now())
         db.session.add(post)
         db.session.commit()
         print(Post.query.all())
-        '''
+
         #init_db_schema(db.engine)
         return "ok"
 
@@ -70,18 +70,7 @@ class Query(ObjectType):
             datetime.now()).
         :return: The response to a read_posts query.
         """
-        
-        before = before if before else datetime.now()
-        statement = (
-            select(Post)
-                .where(Post.created_at < before)
-                .order_by(Post.created_at.desc())
-                .limit(limit)
-        )
-        result = [row[0] for row in db.session.execute(statement)]
-        return str(result)
-
-        #return str(db_read_posts(db.engine, limit=limit, before=before))
+        return str(db_read_posts(db.engine, limit=limit, before=before))
 
 
 def get_schema() -> Schema:

@@ -9,14 +9,15 @@ from datetime import datetime
 from sqlalchemy import select, create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
-from populare_db_proxy.db_schema import Base, Post
+from populare_db_proxy.db_schema import Post, Base
+from populare_db_proxy.app import db
 
 # TODO all of these should be secrets loaded into env
 HOST = "sqlalchemytutorial.*****.eu-central1.rds.amazonaws.com"
 DB_NAME = "populare_db"
 ENGINE_URL = f"mysql+mysqlconnector://{'user'}:{'pass'}@{HOST}/{DB_NAME}"
-#ENGINE_URL_LOCAL = "sqlite+pysqlite:///:memory:"
-ENGINE_URL_LOCAL = "sqlite:////tmp/test.db"
+ENGINE_URL_LOCAL = "sqlite+pysqlite:///:memory:"
+#ENGINE_URL_LOCAL = "sqlite:////tmp/test.db"
 READ_POSTS_LIMIT = 50
 
 
@@ -25,7 +26,7 @@ def init_db_schema(engine: Engine) -> None:
 
     :param engine: A connection to the database.
     """
-    Base.metadata.create_all(engine)
+    db.create_all()
 
 
 def create_post(engine: Engine, post: Post) -> Post:

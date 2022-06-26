@@ -1,6 +1,5 @@
 """Contains classes for the database schema."""
 
-from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.orm import declarative_base
 from populare_db_proxy.app import db
 
@@ -15,8 +14,8 @@ class Post(db.Model):
 
     __tablename__ = "posts"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    text = db.Column(db.String(255), nullable=False)
-    author = db.Column(db.String(255), nullable=False)
+    text = db.Column(db.String(TEXT_SIZE), nullable=False)
+    author = db.Column(db.String(AUTHOR_SIZE), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False)
 
     def __repr__(self) -> str:
