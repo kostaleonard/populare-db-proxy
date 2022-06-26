@@ -22,7 +22,7 @@ def test_rds_creation(mocked_rds: dict) -> None:
 def test_local_db_creation(populated_local_db: Engine) -> None:
     """Tests that the local database was created successfully.
 
-    :param populated_local_db: A connection to the local, in-memory database.
+    :param populated_local_db: A connection to the local database.
     """
     with Session(populated_local_db) as session:
         with session.begin():
@@ -36,14 +36,13 @@ def test_init_db_schema_creates_tables(
 ) -> None:
     """Tests that init_db_schema creates tables in the database.
 
-    :param uninitialized_local_db: A connection to the local, in-memory
-        database.
+    :param uninitialized_local_db: A connection to the local database.
     """
     post = Post(text="text", author="author", created_at=datetime.now())
     with pytest.raises(OperationalError):
         # Because there are no tables, inserting raises an error.
         create_post(uninitialized_local_db, post)
-    init_db_schema(uninitialized_local_db)
+    init_db_schema()
     create_post(uninitialized_local_db, post)
     assert post.id
 
@@ -53,12 +52,11 @@ def test_init_db_schema_twice_no_error(
 ) -> None:
     """Tests that init_db_schema can be called twice without causing errors.
 
-    :param uninitialized_local_db: A connection to the local, in-memory
-        database.
+    :param uninitialized_local_db: A connection to the local database.
     """
     post = Post(text="text", author="author", created_at=datetime.now())
-    init_db_schema(uninitialized_local_db)
-    init_db_schema(uninitialized_local_db)
+    init_db_schema()
+    init_db_schema()
     create_post(uninitialized_local_db, post)
     assert post.id
 
@@ -66,12 +64,12 @@ def test_init_db_schema_twice_no_error(
 def test_create_post_adds_to_table(empty_local_db: Engine) -> None:
     """Tests that create_post adds posts to the database table.
 
-    :param empty_local_db: A connection to the local, in-memory database.
+    :param empty_local_db: A connection to the local database.
     """
     post = Post(text="text", author="author", created_at=datetime.now())
-    assert not read_posts(empty_local_db)
+    assert not read_posts()
     create_post(empty_local_db, post)
-    posts = read_posts(empty_local_db)
+    posts = read_posts()
     assert len(posts) == 1
     assert posts[0].id == post.id
 
@@ -79,7 +77,7 @@ def test_create_post_adds_to_table(empty_local_db: Engine) -> None:
 def test_create_post_adds_post_id(empty_local_db: Engine) -> None:
     """Tests that create_post adds an ID field to posts.
 
-    :param empty_local_db: A connection to the local, in-memory database.
+    :param empty_local_db: A connection to the local database.
     """
     post = Post(text="text", author="author", created_at=datetime.now())
     assert not post.id
@@ -92,7 +90,7 @@ def test_create_post_return_value_matches_input(
 ) -> None:
     """Tests that create_post's return value is the same object as the input.
 
-    :param empty_local_db: A connection to the local, in-memory database.
+    :param empty_local_db: A connection to the local database.
     """
     post = Post(text="text", author="author", created_at=datetime.now())
     returned_post = create_post(empty_local_db, post)
@@ -105,12 +103,12 @@ def test_create_post_twice_same_object_adds_once(
     """Tests that create_post will only add the same post object once when
     called twice.
 
-    :param empty_local_db: A connection to the local, in-memory database.
+    :param empty_local_db: A connection to the local database.
     """
     post = Post(text="text", author="author", created_at=datetime.now())
     create_post(empty_local_db, post)
     create_post(empty_local_db, post)
-    posts = read_posts(empty_local_db)
+    posts = read_posts()
     assert len(posts) == 1
 
 
@@ -120,21 +118,21 @@ def test_create_post_twice_different_objects_same_content_adds_twice(
     """Tests that create_post adds different objects with the same content
     twice.
 
-    :param empty_local_db: A connection to the local, in-memory database.
+    :param empty_local_db: A connection to the local database.
     """
     now = datetime.now()
     post1 = Post(text="text", author="author", created_at=now)
     post2 = Post(text="text", author="author", created_at=now)
     create_post(empty_local_db, post1)
     create_post(empty_local_db, post2)
-    posts = read_posts(empty_local_db)
+    posts = read_posts()
     assert len(posts) == 2
 
 
 def test_create_post_auto_increment_id(empty_local_db: Engine) -> None:
     """Tests that create_post auto-increments IDs.
 
-    :param empty_local_db: A connection to the local, in-memory database.
+    :param empty_local_db: A connection to the local database.
     """
     post1 = Post(text="text", author="author", created_at=datetime.now())
     post2 = Post(text="text", author="author", created_at=datetime.now())
@@ -147,7 +145,7 @@ def test_create_post_auto_increment_id(empty_local_db: Engine) -> None:
 def test_create_post_explicit_id(empty_local_db: Engine) -> None:
     """Tests that create_post accepts explicit post IDs.
 
-    :param empty_local_db: A connection to the local, in-memory database.
+    :param empty_local_db: A connection to the local database.
     """
     post1 = Post(
         text="text",
@@ -170,7 +168,7 @@ def test_create_post_explicit_id(empty_local_db: Engine) -> None:
 def test_create_post_id_collision_raises_error(empty_local_db: Engine) -> None:
     """Tests that create_post raises an error on ID collision.
 
-    :param empty_local_db: A connection to the local, in-memory database.
+    :param empty_local_db: A connection to the local database.
     """
     post1 = Post(text="text", author="author", created_at=datetime.now(), id=1)
     post2 = Post(text="text", author="author", created_at=datetime.now(), id=1)
@@ -182,25 +180,25 @@ def test_create_post_id_collision_raises_error(empty_local_db: Engine) -> None:
 def test_read_posts_returns_posts(populated_local_db: Engine) -> None:
     """Tests that read_posts returns a list of posts.
 
-    :param populated_local_db: A connection to the local, in-memory database.
+    :param populated_local_db: A connection to the local database.
     """
-    assert read_posts(populated_local_db)
+    assert read_posts()
 
 
 def test_read_posts_observes_limit(populated_local_db: Engine) -> None:
     """Tests that read_posts observes the limit argument.
 
-    :param populated_local_db: A connection to the local, in-memory database.
+    :param populated_local_db: A connection to the local database.
     """
     limit = 3
-    posts = read_posts(populated_local_db, limit=limit)
+    posts = read_posts(limit=limit)
     assert len(posts) == limit
 
 
 def test_read_posts_sorts_output(empty_local_db: Engine) -> None:
     """Tests that read_posts orders the output chronologically.
 
-    :param empty_local_db: A connection to the local, in-memory database.
+    :param empty_local_db: A connection to the local database.
     """
     # Create the posts in chronological order.
     post1 = Post(text="first", author="author", created_at=datetime.now())
@@ -213,7 +211,7 @@ def test_read_posts_sorts_output(empty_local_db: Engine) -> None:
     create_post(empty_local_db, post3)
     create_post(empty_local_db, post1)
     # Returned posts should be in chronological order again.
-    posts = read_posts(empty_local_db)
+    posts = read_posts()
     assert posts[0].text == "fourth"
     assert posts[1].text == "third"
     assert posts[2].text == "second"
@@ -226,7 +224,7 @@ def test_read_posts_with_limit_has_most_recent_posts(
     """Tests that read_posts returns the most recent posts when a limit is
     used.
 
-    :param empty_local_db: A connection to the local, in-memory database.
+    :param empty_local_db: A connection to the local database.
     """
     # Create the posts in chronological order.
     post1 = Post(text="first", author="author", created_at=datetime.now())
@@ -240,7 +238,7 @@ def test_read_posts_with_limit_has_most_recent_posts(
     create_post(empty_local_db, post1)
     # Returned posts should be in chronological order again.
     limit = 3
-    posts = read_posts(empty_local_db, limit=limit)
+    posts = read_posts(limit=limit)
     assert len(posts) == limit
     assert posts[0].text == "fourth"
     assert posts[1].text == "third"
@@ -250,7 +248,7 @@ def test_read_posts_with_limit_has_most_recent_posts(
 def test_read_posts_before_datetime(empty_local_db: Engine) -> None:
     """Tests that read_posts returns posts before an explicit datetime.
 
-    :param empty_local_db: A connection to the local, in-memory database.
+    :param empty_local_db: A connection to the local database.
     """
     for idx in range(1, 5):
         post = Post(
@@ -260,7 +258,7 @@ def test_read_posts_before_datetime(empty_local_db: Engine) -> None:
         )
         create_post(empty_local_db, post)
     before = datetime(2022, 1, 3, hour=6)
-    posts = read_posts(empty_local_db, before=before)
+    posts = read_posts(before=before)
     assert len(posts) == 3
     assert posts[0].text == "3"
     assert posts[1].text == "2"

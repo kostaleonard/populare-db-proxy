@@ -72,7 +72,7 @@ def fixture_mocked_rds(aws_credentials: None) -> dict:
 def fixture_uninitialized_local_db() -> Engine:
     """Creates a schema-less local SQLite database for testing.
 
-    :return: A connection to the local, in-memory database.
+    :return: A connection to the local database.
     """
     yield db.engine
     db.drop_all()
@@ -82,9 +82,9 @@ def fixture_uninitialized_local_db() -> Engine:
 def fixture_empty_local_db(uninitialized_local_db: Engine) -> Engine:
     """Creates an empty local SQLite database for testing.
 
-    :return: A connection to the local, in-memory database.
+    :return: A connection to the local database.
     """
-    init_db_schema(uninitialized_local_db)
+    init_db_schema()
     yield uninitialized_local_db
 
 
@@ -92,7 +92,7 @@ def fixture_empty_local_db(uninitialized_local_db: Engine) -> Engine:
 def fixture_populated_local_db(empty_local_db: Engine) -> Engine:
     """Creates a populated local SQLite database for testing.
 
-    :return: A connection to the local, in-memory database.
+    :return: A connection to the local database.
     """
     for idx in range(5):
         post = Post(

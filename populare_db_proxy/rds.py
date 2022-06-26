@@ -12,20 +12,11 @@ from sqlalchemy.orm import Session
 from populare_db_proxy.db_schema import Post, Base
 from populare_db_proxy.app import db
 
-# TODO all of these should be secrets loaded into env
-HOST = "sqlalchemytutorial.*****.eu-central1.rds.amazonaws.com"
-DB_NAME = "populare_db"
-ENGINE_URL = f"mysql+mysqlconnector://{'user'}:{'pass'}@{HOST}/{DB_NAME}"
-ENGINE_URL_LOCAL = "sqlite+pysqlite:///:memory:"
-#ENGINE_URL_LOCAL = "sqlite:////tmp/test.db"
 READ_POSTS_LIMIT = 50
 
 
-def init_db_schema(engine: Engine) -> None:
-    """Initializes the database schema.
-
-    :param engine: A connection to the database.
-    """
+def init_db_schema() -> None:
+    """Initializes the database schema."""
     db.create_all()
 
 
@@ -48,13 +39,11 @@ def create_post(engine: Engine, post: Post) -> Post:
 
 
 def read_posts(
-        engine: Engine,
         limit: int = READ_POSTS_LIMIT,
         before: datetime | None = None
 ) -> list[Post]:
     """Returns a list of posts from the database.
 
-    :param engine: A connection to the database.
     :param limit: The maximum number of posts to return from the database.
     :param before: If supplied, return posts created earlier than this date; if
         None, return the most recent posts (`before` is set to datetime.now()).
@@ -70,6 +59,5 @@ def read_posts(
             .order_by(Post.created_at.desc())
             .limit(limit)
     )
-    with Session(engine, expire_on_commit=False) as session:
-        result = [row[0] for row in session.execute(statement)]
+    result = [row[0] for row in db.session.execute(statement)]
     return result

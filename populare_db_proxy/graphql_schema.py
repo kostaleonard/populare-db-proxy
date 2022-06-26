@@ -6,14 +6,9 @@ https://docs.graphene-python.org/projects/sqlalchemy/en/latest/tutorial/
 
 from __future__ import annotations
 from datetime import datetime
-from sqlalchemy import create_engine, select
 from graphene import ObjectType, String, Int, DateTime, Schema
 from graphql.execution.base import ResolveInfo
-from populare_db_proxy.rds import (
-    init_db_schema,
-    read_posts as db_read_posts,
-    ENGINE_URL_LOCAL
-)
+from populare_db_proxy.rds import read_posts as db_read_posts, init_db_schema
 from populare_db_proxy.db_schema import Post
 from populare_db_proxy.app import db
 
@@ -38,15 +33,7 @@ class Query(ObjectType):
         :param info: The GraphQL context.
         :return: The response to an init_db query.
         """
-
-        db.create_all()
-
-        post = Post(text="text", author="author", created_at=datetime.now())
-        db.session.add(post)
-        db.session.commit()
-        print(Post.query.all())
-
-        #init_db_schema(db.engine)
+        init_db_schema()
         return "ok"
 
     @staticmethod
@@ -70,7 +57,7 @@ class Query(ObjectType):
             datetime.now()).
         :return: The response to a read_posts query.
         """
-        return str(db_read_posts(db.engine, limit=limit, before=before))
+        return str(db_read_posts(limit=limit, before=before))
 
 
 def get_schema() -> Schema:
