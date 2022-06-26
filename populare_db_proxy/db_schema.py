@@ -1,6 +1,6 @@
 """Contains classes for the database schema."""
 
-from populare_db_proxy.app import db
+from populare_db_proxy.app_data import db
 
 TEXT_SIZE = 255
 AUTHOR_SIZE = 255

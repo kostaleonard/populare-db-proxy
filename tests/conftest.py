@@ -10,7 +10,7 @@ from moto import mock_rds
 from sqlalchemy.engine import Engine
 from populare_db_proxy.db_schema import Post
 from populare_db_proxy.rds import init_db_schema, create_post
-from populare_db_proxy.app import db
+from populare_db_proxy.app_data import db
 
 TEST_REGION = "us-east-2"
 DB_NAME = "populare_db"

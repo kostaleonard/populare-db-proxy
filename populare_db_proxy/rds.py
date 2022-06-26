@@ -9,7 +9,7 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from populare_db_proxy.db_schema import Post
-from populare_db_proxy.app import db
+from populare_db_proxy.app_data import db
 
 READ_POSTS_LIMIT = 50
 

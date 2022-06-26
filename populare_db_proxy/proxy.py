@@ -2,7 +2,7 @@
 
 from flask_graphql import GraphQLView
 from populare_db_proxy.graphql_schema import get_schema
-from populare_db_proxy.app import app
+from populare_db_proxy.app_data import app
 
 
 def main() -> None:
