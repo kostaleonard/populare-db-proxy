@@ -7,6 +7,7 @@ from datetime import datetime
 import pytest
 import boto3
 from moto import mock_rds
+from flask import Flask
 from sqlalchemy.engine import Engine
 from populare_db_proxy.db_schema import Post
 from populare_db_proxy.rds import init_db_schema, create_post
@@ -107,7 +108,10 @@ def fixture_populated_local_db(empty_local_db: Engine) -> Engine:
 
 
 @pytest.fixture(scope="session")
-def app():
-    # TODO docstring, types
-    create_app()
+def app() -> Flask:
+    """Creates the proxy flask app for testing.
+
+    :return: The proxy flask app.
+    """
+    create_app(proxy_app)
     return proxy_app
