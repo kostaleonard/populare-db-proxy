@@ -2,7 +2,8 @@
 # pylint: disable=wrong-import-position
 
 import os
-os.environ["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/populare_test.db"
+TEST_DATABASE_PATH = "/tmp/populare_test.db"
+os.environ["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{TEST_DATABASE_PATH}"
 from datetime import datetime
 import pytest
 import boto3
