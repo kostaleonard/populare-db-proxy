@@ -10,7 +10,8 @@ from moto import mock_rds
 from sqlalchemy.engine import Engine
 from populare_db_proxy.db_schema import Post
 from populare_db_proxy.rds import init_db_schema, create_post
-from populare_db_proxy.app_data import db
+from populare_db_proxy.app_data import db, app as proxy_app
+from populare_db_proxy.proxy import create_app
 
 TEST_REGION = "us-east-2"
 DB_NAME = "populare_db"
@@ -103,3 +104,10 @@ def fixture_populated_local_db(empty_local_db: Engine) -> Engine:
         )
         create_post(post)
     yield empty_local_db
+
+
+@pytest.fixture(scope="session")
+def app():
+    # TODO docstring, types
+    create_app()
+    return proxy_app
