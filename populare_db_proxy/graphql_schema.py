@@ -15,7 +15,7 @@ from graphene import (
     ResolveInfo,
     List
 )
-from populare_db_proxy.rds import (
+from populare_db_proxy.db_ops import (
     read_posts as db_read_posts,
     init_db_schema,
     create_post as db_create_post

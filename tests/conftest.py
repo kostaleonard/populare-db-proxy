@@ -11,7 +11,7 @@ from moto import mock_rds
 from flask import Flask
 from sqlalchemy.engine import Engine
 from populare_db_proxy.db_schema import Post
-from populare_db_proxy.rds import init_db_schema, create_post
+from populare_db_proxy.db_ops import init_db_schema, create_post
 from populare_db_proxy.app_data import db, app as proxy_app
 from populare_db_proxy.proxy import create_app
 

@@ -1,4 +1,4 @@
-"""Tests rds.py."""
+"""Tests db_ops.py."""
 
 from datetime import datetime
 from multiprocessing import Pool
@@ -8,7 +8,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import OperationalError, IntegrityError
 from populare_db_proxy.db_schema import Post
-from populare_db_proxy.rds import init_db_schema, create_post, read_posts
+from populare_db_proxy.db_ops import init_db_schema, create_post, read_posts
 from tests.conftest import DB_NAME
 
 POOL_SIZE = 10
