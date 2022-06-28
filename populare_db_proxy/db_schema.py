@@ -1,5 +1,6 @@
 """Contains classes for the database schema."""
 
+import json
 from populare_db_proxy.app_data import db
 
 TEXT_SIZE = 255
@@ -17,11 +18,14 @@ class Post(db.Model):
     created_at = db.Column(db.DateTime, nullable=False)
 
     def __repr__(self) -> str:
-        """Returns the string representation of a row in the table.
+        """Returns the JSON serialization of a row in the table.
 
-        :return: The string representation of a row in the table.
+        :return: The JSON serialization of a row in the table.
         """
-        return (
-            f"Post(id={self.id!r}, text={self.text!r}, "
-            f"author={self.author!r}, created_at={self.created_at!r})"
-        )
+        fields = {
+            "id": self.id,
+            "text": self.text,
+            "author": self.author,
+            "created_at": self.created_at.isoformat()
+        }
+        return json.dumps(fields)
