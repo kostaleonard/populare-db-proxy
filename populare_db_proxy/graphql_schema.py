@@ -6,7 +6,7 @@ https://docs.graphene-python.org/projects/sqlalchemy/en/latest/tutorial/
 
 from __future__ import annotations
 from datetime import datetime
-from graphene import ObjectType, String, Int, DateTime, Schema, ResolveInfo
+from graphene import ObjectType, String, Int, DateTime, Schema, ResolveInfo, List
 from populare_db_proxy.rds import (
     read_posts as db_read_posts,
     init_db_schema,
@@ -19,7 +19,8 @@ class Query(ObjectType):
     """Represents available GraphQL queries."""
 
     init_db = String()
-    read_posts = String(
+    read_posts = List(
+        String,
         limit=Int(required=False),
         before=DateTime(required=False)
     )
@@ -50,7 +51,7 @@ class Query(ObjectType):
             info: ResolveInfo,
             limit: int | None = None,
             before: datetime | None = None
-    ) -> str:
+    ) -> list[str]:
         """Returns the response to a read_posts query.
 
         curl -d '{ readPosts }' -H "Content-Type: application/graphql" -X POST
@@ -66,7 +67,9 @@ class Query(ObjectType):
         :return: The response to a read_posts query.
         """
         # pylint: disable=unused-argument
-        return str(db_read_posts(limit=limit, before=before))
+        return [
+            str(post) for post in db_read_posts(limit=limit, before=before)
+        ]
 
     @staticmethod
     def resolve_create_post(
