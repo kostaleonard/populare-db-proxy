@@ -75,7 +75,6 @@ class Query(ObjectType):
         :return: The response to a read_posts query.
         """
         # pylint: disable=unused-argument
-        # TODO do we want to return list[Post]? Can we?
         return [
             str(post) for post in db_read_posts(limit=limit, before=before)
         ]
