@@ -59,3 +59,26 @@ def read_posts(
     )
     result = [row[0] for row in db.session.execute(statement)]
     return result
+
+
+def update_post(post: Post) -> Post:
+    """Updates a post in the database.
+
+    :param post: The post to update. The post's id field should be set to the
+        post that the user wants to update in the database; all other fields
+        should be set to the values that the caller would like the updated post
+        to have. If no post exists in the database with the specified id,
+        this operation raises an error.
+    :return: The input post; the post with the corresponding id in the database
+        will be updated to match the input.
+    """
+    # TODO
+
+
+def delete_post(post_id: int) -> None:
+    """Deletes a post in the database.
+
+    :param post_id: The id of the post to delete. If no post exists in the
+        database with the specified id, this operation raises an error.
+    """
+    # TODO

@@ -311,3 +311,59 @@ def test_parallel_writes_no_race_condition(empty_local_db: Engine) -> None:
             set(post.id for post in posts) ==
             set(range(1, NUM_PARALLEL_POSTS + 1))
     )
+
+
+def test_update_post_changes_content(empty_local_db: Engine) -> None:
+    """Tests that update_post changes post content.
+
+    :param empty_local_db: A connection to the local database.
+    """
+    # TODO
+    assert False
+
+
+def test_update_post_invalid_id_raises_error(empty_local_db: Engine) -> None:
+    """Tests that update_post raises an error when the ID does not exist.
+
+    :param empty_local_db: A connection to the local database.
+    """
+    # TODO
+    assert False
+
+
+def test_update_post_date_changes_read_order(empty_local_db: Engine) -> None:
+    """Tests that update_post with a new date changes the sort order in
+    read_posts.
+
+    :param empty_local_db: A connection to the local database.
+    """
+    # TODO
+    assert False
+
+
+def test_delete_post_removes_post(empty_local_db: Engine) -> None:
+    """Tests that delete_post removes a post from the database.
+
+    :param empty_local_db: A connection to the local database.
+    """
+    # TODO
+    assert False
+
+
+def test_delete_post_invalid_id_raises_error(empty_local_db: Engine) -> None:
+    """Tests that delete_post raises an error when the ID does not exist.
+
+    :param empty_local_db: A connection to the local database.
+    """
+    # TODO
+    assert False
+
+
+def test_delete_post_twice_raises_error(empty_local_db: Engine) -> None:
+    """Tests that delete_post raises an error when called twice on the same
+    post.
+
+    :param empty_local_db: A connection to the local database.
+    """
+    # TODO
+    assert False
