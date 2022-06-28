@@ -6,7 +6,15 @@ https://docs.graphene-python.org/projects/sqlalchemy/en/latest/tutorial/
 
 from __future__ import annotations
 from datetime import datetime
-from graphene import ObjectType, String, Int, DateTime, Schema, ResolveInfo, List
+from graphene import (
+    ObjectType,
+    String,
+    Int,
+    DateTime,
+    Schema,
+    ResolveInfo,
+    List
+)
 from populare_db_proxy.rds import (
     read_posts as db_read_posts,
     init_db_schema,
@@ -67,6 +75,7 @@ class Query(ObjectType):
         :return: The response to a read_posts query.
         """
         # pylint: disable=unused-argument
+        # TODO do we want to return list[Post]? Can we?
         return [
             str(post) for post in db_read_posts(limit=limit, before=before)
         ]

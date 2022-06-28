@@ -1,4 +1,8 @@
-"""Tests proxy.py."""
+"""Tests proxy.py.
+
+This test file contains all Flask tests; other components, e.g., the GraphQL
+schema, are tested in isolation of Flask.
+"""
 
 import json
 from flask import url_for
