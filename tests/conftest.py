@@ -2,15 +2,18 @@
 # pylint: disable=wrong-import-position
 
 import os
-os.environ["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/populare_test.db"
+TEST_DATABASE_PATH = "/tmp/populare_test.db"
+os.environ["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{TEST_DATABASE_PATH}"
 from datetime import datetime
 import pytest
 import boto3
 from moto import mock_rds
+from flask import Flask
 from sqlalchemy.engine import Engine
 from populare_db_proxy.db_schema import Post
 from populare_db_proxy.rds import init_db_schema, create_post
-from populare_db_proxy.app_data import db
+from populare_db_proxy.app_data import db, app as proxy_app
+from populare_db_proxy.proxy import create_app
 
 TEST_REGION = "us-east-2"
 DB_NAME = "populare_db"
@@ -103,3 +106,13 @@ def fixture_populated_local_db(empty_local_db: Engine) -> Engine:
         )
         create_post(post)
     yield empty_local_db
+
+
+@pytest.fixture(scope="session")
+def app() -> Flask:
+    """Creates the proxy flask app for testing.
+
+    :return: The proxy flask app.
+    """
+    create_app(proxy_app)
+    return proxy_app
