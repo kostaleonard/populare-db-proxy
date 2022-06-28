@@ -3,6 +3,7 @@
 import json
 from flask import url_for
 from flask.testing import FlaskClient
+from populare_db_proxy.app_data import db
 
 
 def test_resolve_init_db_responds_ok(client: FlaskClient) -> None:
@@ -10,6 +11,7 @@ def test_resolve_init_db_responds_ok(client: FlaskClient) -> None:
 
     :param client: The flask client.
     """
+    db.drop_all()
     response = client.post(
         url_for('graphql'),
         data="{ initDb }",
@@ -26,7 +28,7 @@ def test_resolve_read_posts_no_db_fails(client: FlaskClient) -> None:
 
     :param client: The flask client.
     """
-    # TODO how do we make sure we start with a clean DB every test? tempfile for database?
+    db.drop_all()
     response = client.post(
         url_for('graphql'),
         data="{ readPosts }",
@@ -34,6 +36,5 @@ def test_resolve_read_posts_no_db_fails(client: FlaskClient) -> None:
     )
     assert response.status_code == 200
     content = json.loads(response.text)
-    print(content)
     assert "errors" in content
     assert "no such table" in content["errors"][0]["message"]
