@@ -8,7 +8,13 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import OperationalError, IntegrityError
 from populare_db_proxy.db_schema import Post
-from populare_db_proxy.db_ops import init_db_schema, create_post, read_posts
+from populare_db_proxy.db_ops import (
+    init_db_schema,
+    create_post,
+    read_posts,
+    update_post,
+    delete_post
+)
 from tests.conftest import DB_NAME
 
 POOL_SIZE = 10
@@ -313,13 +319,45 @@ def test_parallel_writes_no_race_condition(empty_local_db: Engine) -> None:
     )
 
 
+def test_update_post_returns_post(empty_local_db: Engine) -> None:
+    """Tests that update_post returns the input post.
+
+    :param empty_local_db: A connection to the local database.
+    """
+    post = Post(text="text", author="author", created_at=datetime.now())
+    create_post(post)
+    post = Post(
+        text="new",
+        author="new",
+        created_at=datetime.now(),
+        id=post.id
+    )
+    updated_post = update_post(post)
+    assert updated_post.id == post.id
+    assert updated_post.text == post.text
+    assert updated_post.author == post.author
+    assert updated_post.created_at == post.created_at
+
+
 def test_update_post_changes_content(empty_local_db: Engine) -> None:
     """Tests that update_post changes post content.
 
     :param empty_local_db: A connection to the local database.
     """
-    # TODO
-    assert False
+    post = Post(text="text", author="author", created_at=datetime.now())
+    create_post(post)
+    post = Post(
+        text="new",
+        author="new",
+        created_at=datetime.now(),
+        id=post.id
+    )
+    update_post(post)
+    posts = read_posts()
+    assert len(posts) == 1
+    assert posts[0].id == post.id
+    assert posts[0].text == "new"
+    assert posts[0].author == "new"
 
 
 def test_update_post_invalid_id_raises_error(empty_local_db: Engine) -> None:
@@ -327,8 +365,15 @@ def test_update_post_invalid_id_raises_error(empty_local_db: Engine) -> None:
 
     :param empty_local_db: A connection to the local database.
     """
-    # TODO
-    assert False
+    invalid_id = 9
+    post = Post(
+        text="new",
+        author="new",
+        created_at=datetime.now(),
+        id=invalid_id
+    )
+    with pytest.raises(OperationalError):
+        _ = update_post(post)
 
 
 def test_update_post_date_changes_read_order(empty_local_db: Engine) -> None:
@@ -337,8 +382,30 @@ def test_update_post_date_changes_read_order(empty_local_db: Engine) -> None:
 
     :param empty_local_db: A connection to the local database.
     """
-    # TODO
-    assert False
+    # Create the posts in chronological order.
+    post1 = Post(text="first", author="author", created_at=datetime.now())
+    post2 = Post(text="second", author="author", created_at=datetime.now())
+    post3 = Post(text="third", author="author", created_at=datetime.now())
+    post4 = Post(text="fourth", author="author", created_at=datetime.now())
+    # Add the posts in arbitrary order.
+    create_post(post2)
+    create_post(post4)
+    create_post(post3)
+    create_post(post1)
+    # Update dates.
+    post1 = Post(
+        text="first",
+        author="author",
+        created_at=datetime.now(),
+        id=post1.id
+    )
+    # Post order should change.
+    posts = read_posts()
+    assert len(posts) == 4
+    assert posts[0].text == "1"
+    assert posts[1].text == "4"
+    assert posts[2].text == "3"
+    assert posts[3].text == "2"
 
 
 def test_delete_post_removes_post(empty_local_db: Engine) -> None:
@@ -346,8 +413,14 @@ def test_delete_post_removes_post(empty_local_db: Engine) -> None:
 
     :param empty_local_db: A connection to the local database.
     """
-    # TODO
-    assert False
+    post1 = Post(text="first", author="author", created_at=datetime.now())
+    post2 = Post(text="second", author="author", created_at=datetime.now())
+    create_post(post1)
+    create_post(post2)
+    delete_post(post1.id)
+    posts = read_posts()
+    assert len(posts) == 1
+    assert posts[0].text == "second"
 
 
 def test_delete_post_invalid_id_raises_error(empty_local_db: Engine) -> None:
@@ -355,8 +428,9 @@ def test_delete_post_invalid_id_raises_error(empty_local_db: Engine) -> None:
 
     :param empty_local_db: A connection to the local database.
     """
-    # TODO
-    assert False
+    invalid_id = 9
+    with pytest.raises(OperationalError):
+        delete_post(invalid_id)
 
 
 def test_delete_post_twice_raises_error(empty_local_db: Engine) -> None:
@@ -365,5 +439,9 @@ def test_delete_post_twice_raises_error(empty_local_db: Engine) -> None:
 
     :param empty_local_db: A connection to the local database.
     """
-    # TODO
-    assert False
+    post = Post(text="text", author="author", created_at=datetime.now())
+    create_post(post)
+    post_id = post.id
+    delete_post(post_id)
+    with pytest.raises(OperationalError):
+        delete_post(post_id)
