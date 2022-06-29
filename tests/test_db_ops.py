@@ -360,8 +360,9 @@ def test_update_post_changes_content(empty_local_db: Engine) -> None:
     assert posts[0].author == "new"
 
 
-def test_update_post_invalid_id_raises_error(empty_local_db: Engine) -> None:
-    """Tests that update_post raises an error when the ID does not exist.
+def test_update_post_invalid_id_no_error(empty_local_db: Engine) -> None:
+    """Tests that update_post does not raise an error when the ID does not
+    exist.
 
     :param empty_local_db: A connection to the local database.
     """
@@ -372,8 +373,8 @@ def test_update_post_invalid_id_raises_error(empty_local_db: Engine) -> None:
         created_at=datetime.now(),
         id=invalid_id
     )
-    with pytest.raises(OperationalError):
-        _ = update_post(post)
+    _ = update_post(post)
+    assert True
 
 
 def test_update_post_date_changes_read_order(empty_local_db: Engine) -> None:
@@ -399,13 +400,14 @@ def test_update_post_date_changes_read_order(empty_local_db: Engine) -> None:
         created_at=datetime.now(),
         id=post1.id
     )
+    update_post(post1)
     # Post order should change.
     posts = read_posts()
     assert len(posts) == 4
-    assert posts[0].text == "1"
-    assert posts[1].text == "4"
-    assert posts[2].text == "3"
-    assert posts[3].text == "2"
+    assert posts[0].text == "first"
+    assert posts[1].text == "fourth"
+    assert posts[2].text == "third"
+    assert posts[3].text == "second"
 
 
 def test_delete_post_removes_post(empty_local_db: Engine) -> None:
@@ -423,25 +425,12 @@ def test_delete_post_removes_post(empty_local_db: Engine) -> None:
     assert posts[0].text == "second"
 
 
-def test_delete_post_invalid_id_raises_error(empty_local_db: Engine) -> None:
-    """Tests that delete_post raises an error when the ID does not exist.
+def test_delete_post_invalid_id_no_error(empty_local_db: Engine) -> None:
+    """Tests that delete_post does not raise an error when the ID does not
+    exist.
 
     :param empty_local_db: A connection to the local database.
     """
     invalid_id = 9
-    with pytest.raises(OperationalError):
-        delete_post(invalid_id)
-
-
-def test_delete_post_twice_raises_error(empty_local_db: Engine) -> None:
-    """Tests that delete_post raises an error when called twice on the same
-    post.
-
-    :param empty_local_db: A connection to the local database.
-    """
-    post = Post(text="text", author="author", created_at=datetime.now())
-    create_post(post)
-    post_id = post.id
-    delete_post(post_id)
-    with pytest.raises(OperationalError):
-        delete_post(post_id)
+    delete_post(invalid_id)
+    assert True

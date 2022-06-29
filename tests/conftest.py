@@ -78,6 +78,7 @@ def fixture_uninitialized_local_db() -> Engine:
 
     :return: A connection to the local database.
     """
+    db.drop_all()
     yield db.engine
     db.drop_all()
 
