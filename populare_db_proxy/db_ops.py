@@ -57,7 +57,10 @@ def read_posts(
             .order_by(Post.created_at.desc())
             .limit(limit)
     )
-    result = [row[0] for row in db.session.execute(statement)]
+    with Session(db.engine, expire_on_commit=False) as session:
+        with session.begin():
+            rows = session.execute(statement)
+            result = [row[0] for row in rows]
     return result
 
 
@@ -82,8 +85,9 @@ def update_post(post: Post) -> Post:
                 created_at=post.created_at
             )
     )
-    db.session.execute(statement)
-    db.session.commit()
+    with Session(db.engine, expire_on_commit=False) as session:
+        with session.begin():
+            session.execute(statement)
     return post
 
 
@@ -94,7 +98,7 @@ def delete_post(post_id: int) -> None:
         database with the specified id, this operation does not raise an error,
         since that is the behavior of SQL.
     """
-    # TODO why commit here and not in create?
     statement = delete(Post).where(Post.id == post_id)
-    db.session.execute(statement)
-    db.session.commit()
+    with Session(db.engine, expire_on_commit=False) as session:
+        with session.begin():
+            session.execute(statement)
