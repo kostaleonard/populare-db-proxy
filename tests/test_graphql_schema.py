@@ -63,7 +63,8 @@ def test_resolve_create_post_returns_post_with_id() -> None:
     """)
     result = schema.execute("""
     {
-        createPost(
+        createPost
+        (
             text: "my text",
             author: "my author",
             createdAt: "2006-01-02T15:04:05"
@@ -88,7 +89,8 @@ def test_resolve_read_posts_returns_list_of_posts() -> None:
     for idx in range(5):
         _ = schema.execute(f"""
         {{
-            createPost(
+            createPost
+            (
                 text: "text{idx + 1}",
                 author: "author{idx + 1}",
                 createdAt: "{datetime.now().isoformat()}"
@@ -118,7 +120,8 @@ def test_resolve_update_post_returns_updated_post() -> None:
     for idx in range(5):
         _ = schema.execute(f"""
         {{
-            createPost(
+            createPost
+            (
                 text: "text{idx + 1}",
                 author: "author{idx + 1}",
                 createdAt: "{datetime.now().isoformat()}"
@@ -126,15 +129,16 @@ def test_resolve_update_post_returns_updated_post() -> None:
         }}
         """)
     # Update the text field.
-    result = schema.execute(f"""
-    {{
-        updatePost(
+    result = schema.execute("""
+    {
+        updatePost
+        (
             postId: 1,
             text: "text_one",
             author: "author1",
             createdAt: "2006-01-02T15:04:05"
         )
-    }}
+    }
     """)
     post = result.data["updatePost"]
     assert "text1" not in post
@@ -153,7 +157,8 @@ def test_resolve_update_post_updates_post() -> None:
     for idx in range(5):
         _ = schema.execute(f"""
         {{
-            createPost(
+            createPost
+            (
                 text: "text{idx + 1}",
                 author: "author{idx + 1}",
                 createdAt: "{datetime.now().isoformat()}"
@@ -161,15 +166,16 @@ def test_resolve_update_post_updates_post() -> None:
         }}
         """)
     # Update the text field.
-    _ = schema.execute(f"""
-    {{
-        updatePost(
+    _ = schema.execute("""
+    {
+        updatePost
+        (
             postId: 1,
             text: "text_one",
             author: "author1",
             createdAt: "2006-01-02T15:04:05"
         )
-    }}
+    }
     """)
     result = schema.execute("""
     {
@@ -193,7 +199,8 @@ def test_resolve_delete_post_deletes_post() -> None:
     for idx in range(5):
         _ = schema.execute(f"""
         {{
-            createPost(
+            createPost
+            (
                 text: "text{idx + 1}",
                 author: "author{idx + 1}",
                 createdAt: "{datetime.now().isoformat()}"
@@ -202,7 +209,8 @@ def test_resolve_delete_post_deletes_post() -> None:
         """)
     _ = schema.execute("""
     {
-        deletePost(
+        deletePost
+        (
             postId: 1
         )
     }

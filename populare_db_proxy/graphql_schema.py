@@ -100,7 +100,7 @@ class Query(ObjectType):
     ) -> str:
         """Returns the response to a create_post query.
 
-        createPost(text: "my text", author: "my author", createdAt:
+        curl -d '{ createPost(text: "my text", author: "my author", createdAt:
         "2006-01-02T15:04:05") }' -H "Content-Type: application/graphql" -X
         POST http://localhost:5000/graphql
 
@@ -128,8 +128,8 @@ class Query(ObjectType):
     ) -> str:
         """Returns the response to an update_post query.
 
-        updatePost(postId: 1, text: "new text", author: "new author",
-        createdAt: "2006-01-02T15:04:05") }' -H "Content-Type:
+        curl -d '{ updatePost(postId: 1, text: "new text", author:
+        "new author", createdAt: "2006-01-02T15:04:05") }' -H "Content-Type:
         application/graphql" -X POST http://localhost:5000/graphql
 
         :param root: The root GraphQL object.
@@ -141,8 +141,7 @@ class Query(ObjectType):
             post. For POST requests, format this as an ISO string.
         :return: The response to an update_post query.
         """
-        # pylint: disable=unused-argument
-        # TODO add issue to make any non-updated fields optional
+        # pylint: disable=unused-argument, too-many-arguments
         post = Post(
             id=post_id,
             text=text,
@@ -160,8 +159,8 @@ class Query(ObjectType):
     ) -> str:
         """Returns the response to a delete_post query.
 
-        deletePost(postId: 1) }' -H "Content-Type: application/graphql" -X POST
-        http://localhost:5000/graphql
+        curl -d '{ deletePost(postId: 1) }' -H "Content-Type:
+        application/graphql" -X POST http://localhost:5000/graphql
 
         :param root: The root GraphQL object.
         :param info: The GraphQL context.

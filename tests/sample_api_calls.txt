@@ -1,0 +1,5 @@
+curl -d '{ initDb }' -H "Content-Type: application/graphql" -X POST http://localhost:5000/graphql
+curl -d '{ readPosts }' -H "Content-Type: application/graphql" -X POST http://localhost:5000/graphql
+curl -d '{ createPost(text: "my text", author: "my author", createdAt: "2006-01-02T15:04:05") }' -H "Content-Type: application/graphql" -X POST http://localhost:5000/graphql
+curl -d '{ updatePost(postId: 1, text: "new text", author: "new author", createdAt: "2006-01-02T15:04:05") }' -H "Content-Type: application/graphql" -X POST http://localhost:5000/graphql
+curl -d '{ deletePost(postId: 1) }' -H "Content-Type: application/graphql" -X POST http://localhost:5000/graphql
