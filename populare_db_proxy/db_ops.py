@@ -1,4 +1,4 @@
-"""Contains functions for interfacing with AWS RDS.
+"""Contains functions for interfacing with the database, including AWS RDS.
 
 See the AWS RDS Python interface documentation here:
 https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.IAMDBAuth.Connecting.Python.html
@@ -6,7 +6,7 @@ https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.IAMDBAuth.Co
 
 from __future__ import annotations
 from datetime import datetime
-from sqlalchemy import select
+from sqlalchemy import select, update, delete
 from sqlalchemy.orm import Session
 from populare_db_proxy.db_schema import Post
 from populare_db_proxy.app_data import db
@@ -57,5 +57,48 @@ def read_posts(
             .order_by(Post.created_at.desc())
             .limit(limit)
     )
-    result = [row[0] for row in db.session.execute(statement)]
+    with Session(db.engine, expire_on_commit=False) as session:
+        with session.begin():
+            rows = session.execute(statement)
+            result = [row[0] for row in rows]
     return result
+
+
+def update_post(post: Post) -> Post:
+    """Updates a post in the database.
+
+    :param post: The post to update. The post's id field should be set to the
+        post that the user wants to update in the database; all other fields
+        should be set to the values that the caller would like the updated post
+        to have. If no post exists in the database with the specified id,
+        this operation does not raise an error, since that is the behavior of
+        SQL.
+    :return: The input post; the post with the corresponding id in the database
+        will be updated to match the input.
+    """
+    statement = (
+        update(Post)
+            .where(Post.id == post.id)
+            .values(
+                text=post.text,
+                author=post.author,
+                created_at=post.created_at
+            )
+    )
+    with Session(db.engine, expire_on_commit=False) as session:
+        with session.begin():
+            session.execute(statement)
+    return post
+
+
+def delete_post(post_id: int) -> None:
+    """Deletes a post in the database.
+
+    :param post_id: The id of the post to delete. If no post exists in the
+        database with the specified id, this operation does not raise an error,
+        since that is the behavior of SQL.
+    """
+    statement = delete(Post).where(Post.id == post_id)
+    with Session(db.engine, expire_on_commit=False) as session:
+        with session.begin():
+            session.execute(statement)

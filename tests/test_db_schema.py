@@ -5,7 +5,7 @@ import json
 import pytest
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.engine import Engine
-from populare_db_proxy.rds import create_post
+from populare_db_proxy.db_ops import create_post
 from populare_db_proxy.db_schema import Post
 
 

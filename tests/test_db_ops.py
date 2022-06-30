@@ -1,4 +1,4 @@
-"""Tests rds.py."""
+"""Tests db_ops.py."""
 
 from datetime import datetime
 from multiprocessing import Pool
@@ -8,7 +8,13 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import OperationalError, IntegrityError
 from populare_db_proxy.db_schema import Post
-from populare_db_proxy.rds import init_db_schema, create_post, read_posts
+from populare_db_proxy.db_ops import (
+    init_db_schema,
+    create_post,
+    read_posts,
+    update_post,
+    delete_post
+)
 from tests.conftest import DB_NAME
 
 POOL_SIZE = 10
@@ -311,3 +317,190 @@ def test_parallel_writes_no_race_condition(empty_local_db: Engine) -> None:
             set(post.id for post in posts) ==
             set(range(1, NUM_PARALLEL_POSTS + 1))
     )
+
+
+def test_update_post_returns_post(empty_local_db: Engine) -> None:
+    """Tests that update_post returns the input post.
+
+    :param empty_local_db: A connection to the local database.
+    """
+    # pylint: disable=unused-argument
+    post = Post(text="text", author="author", created_at=datetime.now())
+    create_post(post)
+    post = Post(
+        text="new",
+        author="new",
+        created_at=datetime.now(),
+        id=post.id
+    )
+    updated_post = update_post(post)
+    assert updated_post.id == post.id
+    assert updated_post.text == post.text
+    assert updated_post.author == post.author
+    assert updated_post.created_at == post.created_at
+
+
+def test_update_post_changes_content(empty_local_db: Engine) -> None:
+    """Tests that update_post changes post content.
+
+    :param empty_local_db: A connection to the local database.
+    """
+    # pylint: disable=unused-argument
+    post = Post(text="text", author="author", created_at=datetime.now())
+    create_post(post)
+    post = Post(
+        text="new",
+        author="new",
+        created_at=datetime.now(),
+        id=post.id
+    )
+    update_post(post)
+    posts = read_posts()
+    assert len(posts) == 1
+    assert posts[0].id == post.id
+    assert posts[0].text == "new"
+    assert posts[0].author == "new"
+
+
+def test_update_post_invalid_id_no_error(empty_local_db: Engine) -> None:
+    """Tests that update_post does not raise an error when the ID does not
+    exist.
+
+    :param empty_local_db: A connection to the local database.
+    """
+    # pylint: disable=unused-argument
+    invalid_id = 9
+    post = Post(
+        text="new",
+        author="new",
+        created_at=datetime.now(),
+        id=invalid_id
+    )
+    _ = update_post(post)
+    assert True
+
+
+def test_update_post_date_changes_read_order(empty_local_db: Engine) -> None:
+    """Tests that update_post with a new date changes the sort order in
+    read_posts.
+
+    :param empty_local_db: A connection to the local database.
+    """
+    # pylint: disable=unused-argument
+    # Create the posts in chronological order.
+    post1 = Post(text="first", author="author", created_at=datetime.now())
+    post2 = Post(text="second", author="author", created_at=datetime.now())
+    post3 = Post(text="third", author="author", created_at=datetime.now())
+    post4 = Post(text="fourth", author="author", created_at=datetime.now())
+    # Add the posts in arbitrary order.
+    create_post(post2)
+    create_post(post4)
+    create_post(post3)
+    create_post(post1)
+    # Update dates.
+    post1 = Post(
+        text="first",
+        author="author",
+        created_at=datetime.now(),
+        id=post1.id
+    )
+    update_post(post1)
+    # Post order should change.
+    posts = read_posts()
+    assert len(posts) == 4
+    assert posts[0].text == "first"
+    assert posts[1].text == "fourth"
+    assert posts[2].text == "third"
+    assert posts[3].text == "second"
+
+
+def test_delete_post_removes_post(empty_local_db: Engine) -> None:
+    """Tests that delete_post removes a post from the database.
+
+    :param empty_local_db: A connection to the local database.
+    """
+    # pylint: disable=unused-argument
+    post1 = Post(text="first", author="author", created_at=datetime.now())
+    post2 = Post(text="second", author="author", created_at=datetime.now())
+    create_post(post1)
+    create_post(post2)
+    delete_post(post1.id)
+    posts = read_posts()
+    assert len(posts) == 1
+    assert posts[0].text == "second"
+
+
+def test_delete_post_invalid_id_no_error(empty_local_db: Engine) -> None:
+    """Tests that delete_post does not raise an error when the ID does not
+    exist.
+
+    :param empty_local_db: A connection to the local database.
+    """
+    # pylint: disable=unused-argument
+    invalid_id = 9
+    delete_post(invalid_id)
+    assert True
+
+
+def test_sequential_crud_method_calls(empty_local_db: Engine) -> None:
+    """Tests that create, read, update, and delete can be called several times
+    in arbitrary order.
+
+    :param empty_local_db: A connection to the local database.
+    """
+    # pylint: disable=unused-argument
+    post1 = Post(text="first", author="author", created_at=datetime.now())
+    post2 = Post(text="second", author="author", created_at=datetime.now())
+    post3 = Post(text="third", author="author", created_at=datetime.now())
+    post4 = Post(text="fourth", author="author", created_at=datetime.now())
+    # Add the posts in arbitrary order.
+    create_post(post2)
+    create_post(post4)
+    create_post(post3)
+    create_post(post1)
+    # Update date.
+    post1 = Post(
+        text="first",
+        author="author",
+        created_at=datetime.now(),
+        id=post1.id
+    )
+    update_post(post1)
+    # Delete some posts.
+    delete_post(post2.id)
+    delete_post(post3.id)
+    # Read posts.
+    posts = read_posts()
+    assert len(posts) == 2
+    # Add more posts.
+    post5 = Post(text="fifth", author="author", created_at=datetime.now())
+    post6 = Post(text="sixth", author="author", created_at=datetime.now())
+    create_post(post5)
+    create_post(post6)
+    # Update date.
+    post6 = Post(
+        text="sixth",
+        author="author",
+        created_at=datetime.now(),
+        id=post6.id
+    )
+    update_post(post6)
+    # Read posts again.
+    posts = read_posts()
+    assert len(posts) == 4
+
+
+def test_read_posts_recovers_after_error(
+        uninitialized_local_db: Engine
+) -> None:
+    """Tests that read_posts still functions correctly after an error.
+
+    :param uninitialized_local_db: A connection to the local database.
+    """
+    # pylint: disable=unused-argument
+    with pytest.raises(OperationalError):
+        # Because there are no tables, reading raises an error.
+        _ = read_posts()
+    init_db_schema()
+    posts = read_posts()
+    assert posts is not None

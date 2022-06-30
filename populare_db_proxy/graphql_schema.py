@@ -15,10 +15,12 @@ from graphene import (
     ResolveInfo,
     List
 )
-from populare_db_proxy.rds import (
-    read_posts as db_read_posts,
+from populare_db_proxy.db_ops import (
     init_db_schema,
-    create_post as db_create_post
+    read_posts as db_read_posts,
+    create_post as db_create_post,
+    update_post as db_update_post,
+    delete_post as db_delete_post
 )
 from populare_db_proxy.db_schema import Post
 
@@ -36,6 +38,15 @@ class Query(ObjectType):
         text=String(),
         author=String(),
         created_at=DateTime()
+    )
+    update_post = String(
+        post_id=Int(),
+        text=String(),
+        author=String(),
+        created_at=DateTime()
+    )
+    delete_post = String(
+        post_id=Int()
     )
 
     @staticmethod
@@ -89,7 +100,7 @@ class Query(ObjectType):
     ) -> str:
         """Returns the response to a create_post query.
 
-        createPost(text: "my text", author: "my author", createdAt:
+        curl -d '{ createPost(text: "my text", author: "my author", createdAt:
         "2006-01-02T15:04:05") }' -H "Content-Type: application/graphql" -X
         POST http://localhost:5000/graphql
 
@@ -105,6 +116,60 @@ class Query(ObjectType):
         post = Post(text=text, author=author, created_at=created_at)
         db_create_post(post)
         return str(post)
+
+    @staticmethod
+    def resolve_update_post(
+            root: ObjectType | None,
+            info: ResolveInfo,
+            post_id: int,
+            text: str,
+            author: str,
+            created_at: datetime
+    ) -> str:
+        """Returns the response to an update_post query.
+
+        curl -d '{ updatePost(postId: 1, text: "new text", author:
+        "new author", createdAt: "2006-01-02T15:04:05") }' -H "Content-Type:
+        application/graphql" -X POST http://localhost:5000/graphql
+
+        :param root: The root GraphQL object.
+        :param info: The GraphQL context.
+        :param post_id: The id of the post to update.
+        :param text: The text with which to update the post.
+        :param author: The author with which to update the post.
+        :param created_at: The created_at datetime with which to update the
+            post. For POST requests, format this as an ISO string.
+        :return: The response to an update_post query.
+        """
+        # pylint: disable=unused-argument, too-many-arguments
+        post = Post(
+            id=post_id,
+            text=text,
+            author=author,
+            created_at=created_at
+        )
+        db_update_post(post)
+        return str(post)
+
+    @staticmethod
+    def resolve_delete_post(
+            root: ObjectType | None,
+            info: ResolveInfo,
+            post_id: int
+    ) -> str:
+        """Returns the response to a delete_post query.
+
+        curl -d '{ deletePost(postId: 1) }' -H "Content-Type:
+        application/graphql" -X POST http://localhost:5000/graphql
+
+        :param root: The root GraphQL object.
+        :param info: The GraphQL context.
+        :param post_id: The id of the post to delete.
+        :return: The response to a delete_post query.
+        """
+        # pylint: disable=unused-argument
+        db_delete_post(post_id)
+        return "ok"
 
 
 def get_schema() -> Schema:
