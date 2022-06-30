@@ -4,6 +4,7 @@ Tests the GraphQL schema directly, without using Flask; test_proxy.py contains
 tests that issue POST requests on the graphql endpoint directly.
 """
 
+from datetime import datetime
 from populare_db_proxy.app_data import db
 from populare_db_proxy.graphql_schema import get_schema
 
@@ -88,9 +89,9 @@ def test_resolve_read_posts_returns_list_of_posts() -> None:
         _ = schema.execute(f"""
         {{
             createPost(
-                text: "text{idx}",
-                author: "author{idx}",
-                createdAt: "2006-01-02T15:04:05"
+                text: "text{idx + 1}",
+                author: "author{idx + 1}",
+                createdAt: "{datetime.now().isoformat()}"
             )
         }}
         """)
@@ -101,5 +102,117 @@ def test_resolve_read_posts_returns_list_of_posts() -> None:
     """)
     posts = result.data["readPosts"]
     assert len(posts) == 5
-    assert "text0" in posts[0]
-    assert "text4" in posts[-1]
+    assert "text1" in posts[-1]
+    assert "text5" in posts[0]
+
+
+def test_resolve_update_post_returns_updated_post() -> None:
+    """Tests that resolve_update_post returns the updated post."""
+    db.drop_all()
+    schema = get_schema()
+    _ = schema.execute("""
+    {
+        initDb
+    }
+    """)
+    for idx in range(5):
+        _ = schema.execute(f"""
+        {{
+            createPost(
+                text: "text{idx + 1}",
+                author: "author{idx + 1}",
+                createdAt: "{datetime.now().isoformat()}"
+            )
+        }}
+        """)
+    # Update the text field.
+    result = schema.execute(f"""
+    {{
+        updatePost(
+            postId: 1,
+            text: "text_one",
+            author: "author1",
+            createdAt: "2006-01-02T15:04:05"
+        )
+    }}
+    """)
+    post = result.data["updatePost"]
+    assert "text1" not in post
+    assert "text_one" in post
+
+
+def test_resolve_update_post_updates_post() -> None:
+    """Tests that resolve_update_post updates the specified post."""
+    db.drop_all()
+    schema = get_schema()
+    _ = schema.execute("""
+    {
+        initDb
+    }
+    """)
+    for idx in range(5):
+        _ = schema.execute(f"""
+        {{
+            createPost(
+                text: "text{idx + 1}",
+                author: "author{idx + 1}",
+                createdAt: "{datetime.now().isoformat()}"
+            )
+        }}
+        """)
+    # Update the text field.
+    _ = schema.execute(f"""
+    {{
+        updatePost(
+            postId: 1,
+            text: "text_one",
+            author: "author1",
+            createdAt: "2006-01-02T15:04:05"
+        )
+    }}
+    """)
+    result = schema.execute("""
+    {
+        readPosts
+    }
+    """)
+    posts = result.data["readPosts"]
+    assert "textone" not in posts[-1]
+    assert "text_one" in posts[-1]
+
+
+def test_resolve_delete_post_deletes_post() -> None:
+    """Tests that resolve_delete_post deletes the specified post."""
+    db.drop_all()
+    schema = get_schema()
+    _ = schema.execute("""
+    {
+        initDb
+    }
+    """)
+    for idx in range(5):
+        _ = schema.execute(f"""
+        {{
+            createPost(
+                text: "text{idx + 1}",
+                author: "author{idx + 1}",
+                createdAt: "{datetime.now().isoformat()}"
+            )
+        }}
+        """)
+    _ = schema.execute("""
+    {
+        deletePost(
+            postId: 1
+        )
+    }
+    """)
+    result = schema.execute("""
+    {
+        readPosts
+    }
+    """)
+    posts = result.data["readPosts"]
+    assert len(posts) == 4
+    assert "text2" in posts[-1]
+    assert "text5" in posts[0]

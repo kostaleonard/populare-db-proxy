@@ -86,3 +86,6 @@ def test_resolve_read_posts_empty_db_returns_empty_list(
     assert response.status_code == 200
     content = json.loads(response.text)
     assert content["data"]["readPosts"] == []
+
+
+# TODO add tests for update and delete POST requests
