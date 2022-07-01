@@ -11,6 +11,7 @@ jobs:
     steps:
       - name: Get version
         run: |
+          pwd
           echo "BUILD_VERSION=$(python -c 'from populare_db_proxy import __version__; print(__version__)')" >> $GITHUB_ENV
       - name: Check version
         run: echo $BUILD_VERSION
