@@ -31,4 +31,3 @@ docker_push:
 	@echo Pushing $(VERSION) and latest
 	docker push kostaleonard/populare_db_proxy:latest
 	docker push kostaleonard/populare_db_proxy:$(VERSION)
-	# TODO add build and push to CD phase
