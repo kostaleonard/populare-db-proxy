@@ -16,7 +16,7 @@ jobs:
       - name: Check version
         run: |
           echo $POPULARE_DB_BUILD_VERSION
-          echo ${{ POPULARE_DB_BUILD_VERSION }}
+          echo ${{ env.POPULARE_DB_BUILD_VERSION }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
