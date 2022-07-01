@@ -30,4 +30,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: kostaleonard/populare_db_proxy:latest,kostaleonard/populare_db_proxy:$POPULARE_DB_BUILD_VERSION
+          tags: kostaleonard/populare_db_proxy:latest,kostaleonard/populare_db_proxy:${{ env.POPULARE_DB_BUILD_VERSION }}
