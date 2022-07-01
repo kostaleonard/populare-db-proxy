@@ -15,7 +15,7 @@ test:
 	coverage xml
 
 run:
-	# TODO run the proxy
+	gunicorn --workers 4 --bind 0.0.0.0 'populare_db_proxy.proxy:create_app()'
 
 build:
 	# TODO build the container--need Dockerfile

@@ -6,21 +6,22 @@ from populare_db_proxy.graphql_schema import get_schema
 from populare_db_proxy.app_data import app
 
 
-def create_app(flask_app: Flask) -> None:
-    """Adds endpoints to the given flask app.
+def create_app() -> Flask:
+    """Adds endpoints to the Flask app and returns it.
 
-    :param flask_app: The app to which to add endpoints.
+    :return: The Flask app.
     """
-    flask_app.add_url_rule('/graphql', view_func=GraphQLView.as_view(
+    app.add_url_rule('/graphql', view_func=GraphQLView.as_view(
         'graphql',
         schema=get_schema(),
         graphiql=True,
     ))
+    return app
 
 
 def main() -> None:
     """Runs the program."""
-    create_app(app)
+    create_app()
     app.run()
 
 

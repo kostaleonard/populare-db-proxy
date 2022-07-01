@@ -12,7 +12,7 @@ from flask import Flask
 from sqlalchemy.engine import Engine
 from populare_db_proxy.db_schema import Post
 from populare_db_proxy.db_ops import init_db_schema, create_post
-from populare_db_proxy.app_data import db, app as proxy_app
+from populare_db_proxy.app_data import db
 from populare_db_proxy.proxy import create_app
 
 TEST_REGION = "us-east-2"
@@ -115,5 +115,4 @@ def app() -> Flask:
 
     :return: The proxy flask app.
     """
-    create_app(proxy_app)
-    return proxy_app
+    return create_app()
