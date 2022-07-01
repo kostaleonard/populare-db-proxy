@@ -20,7 +20,7 @@ run:
 	gunicorn --workers 4 --bind 0.0.0.0 'populare_db_proxy.proxy:create_app()'
 
 docker_build:
-	@echo Building $(VERSION)
+	@echo Building $(VERSION) and latest
 	docker build -t kostaleonard/populare_db_proxy:latest -t kostaleonard/populare_db_proxy:$(VERSION) .
 
 docker_run:
@@ -28,5 +28,7 @@ docker_run:
 	docker run -p 8000:8000 kostaleonard/populare_db_proxy:$(VERSION)
 
 docker_push:
-	# TODO
+	@echo Pushing $(VERSION) and latest
+	docker push kostaleonard/populare_db_proxy:latest
+	docker push kostaleonard/populare_db_proxy:$(VERSION)
 	# TODO add build and push to CD phase
