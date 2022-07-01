@@ -1,3 +1,5 @@
+VERSION=$(shell python -c "from populare_db_proxy import __version__; print(__version__)")
+
 all: help
 
 help:
@@ -15,7 +17,17 @@ test:
 	coverage xml
 
 run:
-	# TODO run the proxy
+	gunicorn --workers 4 --bind 0.0.0.0 'populare_db_proxy.proxy:create_app()'
 
-build:
-	# TODO build the container--need Dockerfile
+docker_build:
+	@echo Building $(VERSION) and latest
+	docker build -t kostaleonard/populare_db_proxy:latest -t kostaleonard/populare_db_proxy:$(VERSION) .
+
+docker_run:
+	@echo Running $(VERSION)
+	docker run -p 8000:8000 kostaleonard/populare_db_proxy:$(VERSION)
+
+docker_push:
+	@echo Pushing $(VERSION) and latest
+	docker push kostaleonard/populare_db_proxy:latest
+	docker push kostaleonard/populare_db_proxy:$(VERSION)

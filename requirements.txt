@@ -9,3 +9,4 @@ Flask-GraphQL
 graphene
 Flask-SQLAlchemy
 pytest-flask
+gunicorn
