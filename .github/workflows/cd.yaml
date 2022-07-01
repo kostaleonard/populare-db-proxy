@@ -12,11 +12,11 @@ jobs:
       - uses: actions/checkout@v2
       - name: Get version
         run: |
-          pwd
-          ls
-          echo "BUILD_VERSION=$(PYTHONPATH=. python -c 'from populare_db_proxy import __version__; print(__version__)')" >> $GITHUB_ENV
+          echo "POPULARE_DB_BUILD_VERSION=$(PYTHONPATH=. python -c 'from populare_db_proxy import __version__; print(__version__)')" >> $GITHUB_ENV
       - name: Check version
-        run: echo $BUILD_VERSION
+        run: |
+          echo $POPULARE_DB_BUILD_VERSION
+          echo ${{ POPULARE_DB_BUILD_VERSION }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -30,4 +30,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: kostaleonard/populare_db_proxy:latest,kostaleonard/populare_db_proxy:$BUILD_VERSION
+          tags: kostaleonard/populare_db_proxy:latest,kostaleonard/populare_db_proxy:$POPULARE_DB_BUILD_VERSION
