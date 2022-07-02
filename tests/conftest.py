@@ -2,6 +2,7 @@
 # pylint: disable=wrong-import-position
 
 import os
+os.environ["POPULARE_ALLOW_MISSING_SECRET"] = ""
 TEST_DATABASE_PATH = "/tmp/populare_test.db"
 os.environ["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{TEST_DATABASE_PATH}"
 from datetime import datetime

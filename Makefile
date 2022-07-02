@@ -19,6 +19,9 @@ test:
 run:
 	gunicorn --workers 4 --bind 0.0.0.0 'populare_db_proxy.proxy:create_app()'
 
+run_no_secret:
+	POPULARE_ALLOW_MISSING_SECRET="" gunicorn --workers 4 --bind 0.0.0.0 'populare_db_proxy.proxy:create_app()'
+
 docker_build:
 	@echo Building $(VERSION) and latest
 	docker build -t kostaleonard/populare_db_proxy:latest -t kostaleonard/populare_db_proxy:$(VERSION) .
