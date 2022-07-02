@@ -30,8 +30,7 @@ def get_database_uri(secret_filename: str = _DATABASE_SECRET_PATH) -> str:
                 "SQLALCHEMY_DATABASE_URI",
                 "sqlite:////tmp/populare.db"
             )
-        else:
-            raise exc
+        raise exc
 
 
 app = Flask(__name__)

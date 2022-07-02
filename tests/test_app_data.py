@@ -1,8 +1,8 @@
 """Tests app_data.py."""
 
 import os
-import pytest
 from unittest.mock import patch
+import pytest
 from populare_db_proxy.app_data import app, get_database_uri
 
 TEST_SECRET_FILENAME = "/tmp/populare-db-proxy/test_app_data/db-certs/db-uri"
