@@ -10,6 +10,14 @@ from flask.testing import FlaskClient
 from populare_db_proxy.app_data import db
 
 
+def test_get_health_endpoint_gives_ok_code(client: FlaskClient) -> None:
+    """Tests that a GET request on the health endpoint gives code 200.
+
+    :param client: The flask client.
+    """
+    assert client.get(url_for('health')).status_code == 200
+
+
 def test_get_graphql_endpoint_gives_bad_response_code(
         client: FlaskClient
 ) -> None:
