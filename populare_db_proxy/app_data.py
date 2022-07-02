@@ -4,7 +4,7 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-_DATABASE_SECRET_PATH = os.path.join("db-certs", "db-uri")
+_DATABASE_SECRET_PATH = "/etc/populare-db-proxy/db-certs/db-uri"
 
 
 def get_database_uri(secret_filename: str = _DATABASE_SECRET_PATH) -> str:
