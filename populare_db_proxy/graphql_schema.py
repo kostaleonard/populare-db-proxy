@@ -20,7 +20,8 @@ from populare_db_proxy.db_ops import (
     read_posts as db_read_posts,
     create_post as db_create_post,
     update_post as db_update_post,
-    delete_post as db_delete_post
+    delete_post as db_delete_post,
+    READ_POSTS_LIMIT
 )
 from populare_db_proxy.db_schema import Post
 
@@ -86,6 +87,7 @@ class Query(ObjectType):
         :return: The response to a read_posts query.
         """
         # pylint: disable=unused-argument
+        limit = limit if limit is not None else READ_POSTS_LIMIT
         return [
             str(post) for post in db_read_posts(limit=limit, before=before)
         ]

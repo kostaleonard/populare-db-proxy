@@ -6,6 +6,7 @@ tests that issue POST requests on the graphql endpoint directly.
 
 from datetime import datetime
 from populare_db_proxy.app_data import db
+from populare_db_proxy.db_ops import READ_POSTS_LIMIT
 from populare_db_proxy.graphql_schema import get_schema
 
 
@@ -106,6 +107,36 @@ def test_resolve_read_posts_returns_list_of_posts() -> None:
     assert len(posts) == 5
     assert "text1" in posts[-1]
     assert "text5" in posts[0]
+
+
+def test_resolve_read_posts_uses_default_limit() -> None:
+    """Tests that resolve_read_posts uses the default read limit when no limit
+    argument is provided in the query."""
+    db.drop_all()
+    schema = get_schema()
+    _ = schema.execute("""
+    {
+        initDb
+    }
+    """)
+    for idx in range(READ_POSTS_LIMIT + 1):
+        _ = schema.execute(f"""
+        {{
+            createPost
+            (
+                text: "text{idx + 1}",
+                author: "author{idx + 1}",
+                createdAt: "{datetime.now().isoformat()}"
+            )
+        }}
+        """)
+    result = schema.execute("""
+    {
+        readPosts
+    }
+    """)
+    posts = result.data["readPosts"]
+    assert len(posts) == READ_POSTS_LIMIT
 
 
 def test_resolve_update_post_returns_updated_post() -> None:
