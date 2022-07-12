@@ -3,6 +3,7 @@
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 _DATABASE_SECRET_PATH = "/etc/populare-db-proxy/db-certs/db-uri"
 
@@ -34,6 +35,7 @@ def get_database_uri(secret_filename: str = _DATABASE_SECRET_PATH) -> str:
 
 
 app = Flask(__name__)
+CORS(app)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["SQLALCHEMY_DATABASE_URI"] = get_database_uri()
 db = SQLAlchemy(app)

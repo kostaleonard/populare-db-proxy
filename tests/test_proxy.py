@@ -10,6 +10,15 @@ from flask.testing import FlaskClient
 from populare_db_proxy.app_data import db
 
 
+def test_proxy_uses_cors_headers(client: FlaskClient) -> None:
+    """Tests that the proxy responds with CORS headers.
+
+    :param client: The flask client.
+    """
+    headers = client.get(url_for('health')).headers
+    assert headers.get("Access-Control-Allow-Origin", "") == "*"
+
+
 def test_get_health_endpoint_gives_ok_code(client: FlaskClient) -> None:
     """Tests that a GET request on the health endpoint gives code 200.
 

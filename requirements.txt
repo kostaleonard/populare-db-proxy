@@ -10,3 +10,4 @@ graphene
 Flask-SQLAlchemy
 pytest-flask
 gunicorn
+flask-cors
