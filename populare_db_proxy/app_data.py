@@ -3,6 +3,7 @@
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 _DATABASE_SECRET_PATH = "/etc/populare-db-proxy/db-certs/db-uri"
 
