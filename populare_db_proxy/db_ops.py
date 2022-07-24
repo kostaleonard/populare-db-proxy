@@ -8,6 +8,7 @@ from __future__ import annotations
 from datetime import datetime
 from sqlalchemy import select, update, delete
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import OperationalError
 from populare_db_proxy.db_schema import Post
 from populare_db_proxy.app_data import db
 
@@ -16,7 +17,12 @@ READ_POSTS_LIMIT = 50
 
 def init_db_schema() -> None:
     """Initializes the database schema."""
-    db.create_all()
+    try:
+        db.create_all()
+    except OperationalError:
+        # If the database already exists, this operation sometimes (not always)
+        # raises an error.
+        pass
 
 
 def create_post(post: Post) -> Post:
