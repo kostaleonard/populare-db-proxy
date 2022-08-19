@@ -2,9 +2,8 @@
 
 from flask import Flask
 from flask_graphql import GraphQLView
-from populare_db_proxy import __version__
 from populare_db_proxy.graphql_schema import get_schema
-from populare_db_proxy.app_data import app, metrics
+from populare_db_proxy.app_data import app
 from populare_db_proxy.db_ops import init_db_schema
 
 
@@ -28,8 +27,6 @@ def create_app() -> Flask:
         schema=get_schema(),
         graphiql=True,
     ))
-    # TODO call setup metrics, or move if everything is handled
-    metrics.info('app_info', 'Application info', version=__version__)
     return app
 
 
