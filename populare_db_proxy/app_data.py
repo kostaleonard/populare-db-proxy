@@ -4,6 +4,7 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from prometheus_flask_exporter import PrometheusMetrics
 
 _DATABASE_SECRET_PATH = "/etc/populare-db-proxy/db-certs/db-uri"
 
@@ -39,3 +40,4 @@ CORS(app)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["SQLALCHEMY_DATABASE_URI"] = get_database_uri()
 db = SQLAlchemy(app)
+metrics = PrometheusMetrics(app)
