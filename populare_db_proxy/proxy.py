@@ -31,7 +31,11 @@ def create_app() -> Flask:
 
 
 def main() -> None:
-    """Runs the program."""
+    """Runs the program.
+
+    This function is only called when the app is run as standalone Flask; it is
+    not called when run as a Gunicorn WSGI, as in production deployment.
+    """
     create_app()
     app.run()
 

@@ -12,3 +12,4 @@ pytest-flask
 gunicorn
 flask-cors
 PyMySQL
+prometheus-flask-exporter
